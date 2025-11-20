@@ -4,6 +4,7 @@ import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Calculator, MessageCircle, TrendingUp, Users, Shield, Lightbulb } from "lucide-react";
+import heroBackground from "@/assets/hero-background.jpg";
 
 export default function Index() {
   const { language } = useLanguage();
@@ -83,24 +84,28 @@ export default function Index() {
       
       {/* Hero Section */}
       <section className="relative overflow-hidden border-b border-border">
-        <div className="container mx-auto px-4 py-16 md:py-24">
+        <div 
+          className="absolute inset-0 bg-cover bg-center opacity-10"
+          style={{ backgroundImage: `url(${heroBackground})` }}
+        />
+        <div className="relative container mx-auto px-4 py-16 md:py-24">
           <div className="mx-auto max-w-3xl text-center">
-            <h1 className="text-4xl font-bold tracking-tight text-primary sm:text-5xl md:text-6xl mb-6">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-primary mb-4 sm:mb-6 px-4">
               {t("heroTitle", language)}
             </h1>
-            <p className="text-xl text-muted-foreground mb-4">
+            <p className="text-lg sm:text-xl text-muted-foreground mb-3 sm:mb-4 px-4">
               {t("tagline", language)}
             </p>
-            <p className="text-lg text-muted-foreground mb-8">
+            <p className="text-base sm:text-lg text-muted-foreground mb-6 sm:mb-8 px-4">
               {t("description", language)}
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" onClick={() => navigate("/simulator")} className="text-lg px-8">
-                <Calculator className="mr-2 h-5 w-5" />
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4">
+              <Button size="lg" onClick={() => navigate("/simulator")} className="text-base sm:text-lg px-6 sm:px-8 w-full sm:w-auto">
+                <Calculator className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                 {t("startSimulation", language)}
               </Button>
-              <Button size="lg" variant="outline" onClick={() => navigate("/chatbot")} className="text-lg px-8">
-                <MessageCircle className="mr-2 h-5 w-5" />
+              <Button size="lg" variant="outline" onClick={() => navigate("/chatbot")} className="text-base sm:text-lg px-6 sm:px-8 w-full sm:w-auto">
+                <MessageCircle className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                 {t("talkToAssistant", language)}
               </Button>
             </div>
@@ -109,23 +114,23 @@ export default function Index() {
       </section>
 
       {/* Features Section */}
-      <section className="py-16 md:py-24">
+      <section className="py-12 sm:py-16 md:py-24">
         <div className="container mx-auto px-4">
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-6 sm:gap-8 md:grid-cols-2 lg:grid-cols-3">
             {features.map((feature, index) => {
               const Icon = feature.icon;
               return (
                 <div
                   key={index}
-                  className="group relative overflow-hidden rounded-lg border border-border bg-card p-6 hover:shadow-lg transition-shadow"
+                  className="group relative overflow-hidden rounded-lg border border-border bg-card p-4 sm:p-6 hover:shadow-lg transition-shadow"
                 >
-                  <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                    <Icon className="h-6 w-6 text-primary" />
+                  <div className="mb-3 sm:mb-4 inline-flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-lg bg-primary/10">
+                    <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
                   </div>
-                  <h3 className="mb-2 text-xl font-semibold text-card-foreground">
+                  <h3 className="mb-2 text-lg sm:text-xl font-semibold text-card-foreground">
                     {feature.titleKey ? t(feature.titleKey, language) : getFeatureText(feature, "title")}
                   </h3>
-                  <p className="text-muted-foreground">
+                  <p className="text-sm sm:text-base text-muted-foreground">
                     {getFeatureText(feature, "description")}
                   </p>
                 </div>
@@ -136,22 +141,22 @@ export default function Index() {
       </section>
 
       {/* CTA Section */}
-      <section className="border-t border-border bg-muted/30 py-16">
+      <section className="border-t border-border bg-muted/30 py-12 sm:py-16">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold text-primary mb-4">
+          <h2 className="text-2xl sm:text-3xl font-bold text-primary mb-3 sm:mb-4 px-4">
             {language === "fr" && "Prêt à calculer votre impôt ?"}
             {language === "en" && "Ready to calculate your taxes?"}
             {language === "wo" && "Jëkk ngir kajoor sa impôt ?"}
             {language === "ff" && "A heɓii limtude impôt maa?"}
           </h2>
-          <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-muted-foreground mb-6 sm:mb-8 max-w-2xl mx-auto px-4">
             {language === "fr" && "Utilisez notre simulateur gratuit pour estimer votre contribution fiscale."}
             {language === "en" && "Use our free simulator to estimate your tax contribution."}
             {language === "wo" && "Jëfandikoo simulateur bu njël ngir xam sa contribution fiscale."}
             {language === "ff" && "Huutoro simulateur amen ngam anndugo contribution maa."}
           </p>
-          <Button size="lg" onClick={() => navigate("/simulator")} className="text-lg px-8">
-            <Calculator className="mr-2 h-5 w-5" />
+          <Button size="lg" onClick={() => navigate("/simulator")} className="text-base sm:text-lg px-6 sm:px-8">
+            <Calculator className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
             {t("startSimulation", language)}
           </Button>
         </div>
