@@ -40,8 +40,8 @@ export function TaxSimulator() {
   };
 
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
-      <Card>
+    <div className="grid gap-6 lg:grid-cols-2 w-full max-w-7xl mx-auto">
+      <Card className="w-full">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Calculator className="h-5 w-5" />
@@ -104,7 +104,7 @@ export function TaxSimulator() {
       </Card>
 
       {result && (
-        <Card className="lg:col-span-1">
+        <Card className="lg:col-span-1 w-full">
           <CardHeader>
             <CardTitle>{t("results", language)}</CardTitle>
             <CardDescription>{t("taxBreakdown", language)}</CardDescription>
