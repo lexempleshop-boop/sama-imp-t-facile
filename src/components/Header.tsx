@@ -12,6 +12,7 @@ export function Header() {
     { path: "/", label: t("home", language), icon: Home },
     { path: "/simulator", label: t("simulator", language), icon: Calculator },
     { path: "/chatbot", label: t("chatbot", language), icon: MessageCircle },
+    { path: "/formalization", label: t("formalization", language), icon: Info },
     { path: "/about", label: t("about", language), icon: Info },
   ];
 
