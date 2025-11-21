@@ -265,14 +265,26 @@
 // }
 
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
-import { MessageSquare, Send, Loader2, Sparkles, Globe } from "lucide-react";
+import { MessageSquare, Send, Loader2, Sparkles, Globe, Mic, MicOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+
+// TypeScript interface for SpeechRecognition
+interface SpeechRecognition extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  onresult: ((event: any) => void) | null;
+  onerror: ((event: any) => void) | null;
+  onend: (() => void) | null;
+  start: () => void;
+  stop: () => void;
+}
 
 type Message = {
   role: "user" | "assistant";
@@ -325,8 +337,10 @@ export function TaxChatbot() {
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isListening, setIsListening] = useState(false);
   const { toast } = useToast();
   const scrollRef = useRef<HTMLDivElement>(null);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
 
   const streamChat = async (userMessage: string) => {
     try {
@@ -412,6 +426,68 @@ export function TaxChatbot() {
   const handleLanguageChange = (lang: Language) => {
     setLanguage(lang);
     setMessages([{ role: "assistant", content: welcomeMessages[lang] }]);
+  };
+
+  useEffect(() => {
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      recognitionRef.current = new SpeechRecognition();
+      recognitionRef.current.continuous = false;
+      recognitionRef.current.interimResults = false;
+      
+      const langMap: Record<Language, string> = {
+        fr: 'fr-FR',
+        en: 'en-US',
+        wo: 'wo-SN',
+        ff: 'ff-SN'
+      };
+      recognitionRef.current.lang = langMap[language] || 'fr-FR';
+
+      recognitionRef.current.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        setInput(transcript);
+        setIsListening(false);
+      };
+
+      recognitionRef.current.onerror = (event: any) => {
+        console.error('Speech recognition error:', event.error);
+        setIsListening(false);
+        toast({
+          title: "Erreur vocale",
+          description: "Impossible de capturer la voix",
+          variant: "destructive",
+        });
+      };
+
+      recognitionRef.current.onend = () => {
+        setIsListening(false);
+      };
+    }
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
+  }, [language, toast]);
+
+  const toggleVoiceInput = () => {
+    if (!recognitionRef.current) {
+      toast({
+        title: "Non supporté",
+        description: "La reconnaissance vocale n'est pas supportée par votre navigateur",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (isListening) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+    } else {
+      recognitionRef.current.start();
+      setIsListening(true);
+    }
   };
 
   return (
@@ -501,11 +577,25 @@ export function TaxChatbot() {
               <Input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleSend()}
+                onKeyDown={(e) => e.key === "Enter" && !isLoading && handleSend()}
                 placeholder="Posez votre question..."
                 disabled={isLoading}
                 className="flex-1 border-2 focus:border-primary"
               />
+              <Button 
+                type="button" 
+                onClick={toggleVoiceInput}
+                disabled={isLoading}
+                size="icon"
+                variant={isListening ? "default" : "outline"}
+                className={isListening ? "animate-pulse" : ""}
+              >
+                {isListening ? (
+                  <MicOff className="w-4 h-4" />
+                ) : (
+                  <Mic className="w-4 h-4" />
+                )}
+              </Button>
               <Button onClick={handleSend} disabled={isLoading || !input.trim()} className="gap-2">
                 {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
               </Button>
