@@ -7,6 +7,7 @@ import { LanguageProvider } from "./contexts/LanguageContext";
 import Index from "./pages/Index";
 import Simulator from "./pages/Simulator";
 import Chatbot from "./pages/Chatbot";
+import Formalization from "./pages/Formalization";
 import About from "./pages/About";
 import NotFound from "./pages/NotFound";
 
@@ -23,6 +24,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/simulator" element={<Simulator />} />
             <Route path="/chatbot" element={<Chatbot />} />
+            <Route path="/formalization" element={<Formalization />} />
             <Route path="/about" element={<About />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

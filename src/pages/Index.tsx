@@ -2,9 +2,12 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { t } from "@/utils/translations";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { useNavigate } from "react-router-dom";
-import { Calculator, MessageCircle, TrendingUp, Users, Shield, Lightbulb } from "lucide-react";
+import { Calculator, MessageCircle, TrendingUp, Users, Shield, Lightbulb, FileCheck } from "lucide-react";
 import heroBackground from "@/assets/hero-background.jpg";
+import Autoplay from "embla-carousel-autoplay";
 
 export default function Index() {
   const { language } = useLanguage();
@@ -18,6 +21,7 @@ export default function Index() {
       descriptionEn: "Calculate your taxes in a few clicks with our accurate simulator",
       descriptionWo: "Kajoor sa impôt ci benn cliquer ak simulateur bu baax",
       descriptionFf: "Limtu impôt maa e clik keewɗe e simulateur amen",
+      link: "/simulator"
     },
     {
       icon: MessageCircle,
@@ -26,6 +30,19 @@ export default function Index() {
       descriptionEn: "Ask your tax questions to our multilingual AI assistant",
       descriptionWo: "Laaj sa xalaatu impôt ci assistant IA bi",
       descriptionFf: "Naamna mbelu impôt maa e assistant IA amen",
+      link: "/chatbot"
+    },
+    {
+      icon: FileCheck,
+      titleFr: "Formalisation",
+      titleEn: "Formalization",
+      titleWo: "Formalisation",
+      titleFf: "Formalisation",
+      descriptionFr: "Guide personnalisé pour formaliser votre activité",
+      descriptionEn: "Personalized guide to formalize your business",
+      descriptionWo: "Guide bu personal ngir formaliser sa liggéey",
+      descriptionFf: "Jaaynirde personal ngam formaliser golle maa",
+      link: "/formalization"
     },
     {
       icon: Users,
@@ -37,6 +54,7 @@ export default function Index() {
       descriptionEn: "Supporting the informal sector towards formalization",
       descriptionWo: "Walluwaat secteur informel ci formalisation",
       descriptionFf: "Wallitde secteur informel e formalisation",
+      link: "/about"
     },
     {
       icon: Shield,
@@ -48,6 +66,7 @@ export default function Index() {
       descriptionEn: "Understand where your tax contribution goes",
       descriptionWo: "Xam fan sa contribution fiscale di dem",
       descriptionFf: "Faamu ɗo contribution maa yaha",
+      link: "/about"
     },
     {
       icon: TrendingUp,
@@ -59,6 +78,7 @@ export default function Index() {
       descriptionEn: "Contribute to your community's development",
       descriptionWo: "Walluwaat ci yoneent sa réew",
       descriptionFf: "Wallitde e yurnde leydi maa",
+      link: "/about"
     },
     {
       icon: Lightbulb,
@@ -70,6 +90,7 @@ export default function Index() {
       descriptionEn: "Learn and understand your tax obligations",
       descriptionWo: "Jàng te xam sa obligations fiscales",
       descriptionFf: "Jango e faamu obligations maa",
+      link: "/about"
     },
   ];
 
@@ -113,35 +134,73 @@ export default function Index() {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-12 sm:py-16 md:py-24">
+      {/* Features Carousel Section */}
+      <section className="py-12 sm:py-16 md:py-24 bg-muted/30">
         <div className="container mx-auto px-4">
-          <div className="grid gap-6 sm:gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {features.map((feature, index) => {
-              const Icon = feature.icon;
-              return (
-                <div
-                  key={index}
-                  className="group relative overflow-hidden rounded-lg border border-border bg-card p-4 sm:p-6 hover:shadow-lg transition-shadow"
-                >
-                  <div className="mb-3 sm:mb-4 inline-flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-lg bg-primary/10">
-                    <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-                  </div>
-                  <h3 className="mb-2 text-lg sm:text-xl font-semibold text-card-foreground">
-                    {feature.titleKey ? t(feature.titleKey, language) : getFeatureText(feature, "title")}
-                  </h3>
-                  <p className="text-sm sm:text-base text-muted-foreground">
-                    {getFeatureText(feature, "description")}
-                  </p>
-                </div>
-              );
-            })}
+          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12 text-primary">
+            {language === "fr" && "Nos Services"}
+            {language === "en" && "Our Services"}
+            {language === "wo" && "Ñu Services"}
+            {language === "ff" && "Ballal Amen"}
+          </h2>
+          <div className="max-w-6xl mx-auto">
+            <Carousel
+              opts={{
+                align: "start",
+                loop: true,
+              }}
+              plugins={[
+                Autoplay({
+                  delay: 3500,
+                }),
+              ]}
+              className="w-full"
+            >
+              <CarouselContent className="-ml-2 md:-ml-4">
+                {features.map((feature, index) => {
+                  const Icon = feature.icon;
+                  return (
+                    <CarouselItem key={index} className="pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3">
+                      <div className="p-1 h-full">
+                        <Card 
+                          className="h-full hover:shadow-lg transition-all cursor-pointer hover:scale-105"
+                          onClick={() => navigate(feature.link)}
+                        >
+                          <CardHeader className="text-center pb-3">
+                            <div className="flex justify-center mb-3">
+                              <div className="h-14 w-14 sm:h-16 sm:w-16 rounded-full bg-primary/10 flex items-center justify-center">
+                                <Icon className="h-7 w-7 sm:h-8 sm:w-8 text-primary" />
+                              </div>
+                            </div>
+                            <CardTitle className="text-lg sm:text-xl mb-2">
+                              {feature.titleKey ? t(feature.titleKey, language) : getFeatureText(feature, "title")}
+                            </CardTitle>
+                            <CardDescription className="text-sm">
+                              {getFeatureText(feature, "description")}
+                            </CardDescription>
+                          </CardHeader>
+                          <CardContent className="text-center pb-4">
+                            <Button variant="ghost" size="sm" className="text-primary">
+                              {language === "fr" ? "Découvrir →" : language === "en" ? "Discover →" : language === "wo" ? "Xam →" : "Ɓeydu →"}
+                            </Button>
+                          </CardContent>
+                        </Card>
+                      </div>
+                    </CarouselItem>
+                  );
+                })}
+              </CarouselContent>
+              <div className="hidden md:block">
+                <CarouselPrevious className="-left-12" />
+                <CarouselNext className="-right-12" />
+              </div>
+            </Carousel>
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="border-t border-border bg-muted/30 py-12 sm:py-16">
+      <section className="border-t border-border bg-background py-12 sm:py-16">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-2xl sm:text-3xl font-bold text-primary mb-3 sm:mb-4 px-4">
             {language === "fr" && "Prêt à calculer votre impôt ?"}

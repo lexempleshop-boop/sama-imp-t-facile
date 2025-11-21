@@ -17,6 +17,7 @@ export const translations: Record<Language, Record<string, string>> = {
     home: "Accueil",
     simulator: "Simulateur",
     chatbot: "Assistant IA",
+    formalization: "Formalisation",
     about: "À propos",
     
     // Hero
@@ -75,6 +76,7 @@ export const translations: Record<Language, Record<string, string>> = {
     home: "Home",
     simulator: "Simulator",
     chatbot: "AI Assistant",
+    formalization: "Formalization",
     about: "About",
     
     heroTitle: "Understand taxes to contribute better",
@@ -127,6 +129,7 @@ export const translations: Record<Language, Record<string, string>> = {
     home: "Kër",
     simulator: "Simulateur",
     chatbot: "Assistant IA",
+    formalization: "Formalisation",
     about: "Ay xibaar",
     
     heroTitle: "Xam impôt bi ngir yeesal bu baax",
@@ -179,6 +182,7 @@ export const translations: Record<Language, Record<string, string>> = {
     home: "Jaɓɓugol",
     simulator: "Simulateur",
     chatbot: "Assistant IA",
+    formalization: "Formalisation",
     about: "Humpito",
     
     heroTitle: "Faamu impôt ngam wallitde heen",
