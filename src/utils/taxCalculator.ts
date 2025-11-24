@@ -34,7 +34,17 @@ const TRIMF_BRACKETS = [
 ];
 
 function calculateParts(maritalStatus: string, numberOfChildren: number): number {
-  let parts = maritalStatus === "married" ? 2 : 1;
+  // Marié(e) ou en union libre = 2 parts
+  // Divorcé(e), veuf/veuve, séparé(e) avec enfants = 1.5 parts (charge de famille)
+  // Célibataire = 1 part
+  let parts = 1;
+  
+  if (maritalStatus === "married" || maritalStatus === "cohabiting") {
+    parts = 2;
+  } else if ((maritalStatus === "divorced" || maritalStatus === "widowed" || maritalStatus === "separated") && numberOfChildren > 0) {
+    parts = 1.5;
+  }
+  
   parts += numberOfChildren * 0.5;
   return Math.min(parts, 5); // Maximum 5 parts
 }
