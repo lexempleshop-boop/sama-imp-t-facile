@@ -135,7 +135,7 @@ export default function Index() {
       </section>
 
       {/* Features Carousel Section */}
-      <section className="py-8 sm:py-12 md:py-16 bg-muted/30">
+      <section className="py-8 sm:py-12 md:py-16 bg-gradient-to-b from-muted/30 via-muted/50 to-muted/30">
         <div className="container mx-auto px-4">
           <h2 className="text-2xl sm:text-3xl font-bold text-center mb-6 sm:mb-8 text-primary">
             {language === "fr" && "Nos Services"}
@@ -200,7 +200,7 @@ export default function Index() {
       </section>
 
       {/* CTA Section */}
-      <section className="border-t border-border bg-background py-8 sm:py-12">
+      <section className="border-t border-border bg-gradient-to-r from-primary/5 via-accent/5 to-primary/5 py-8 sm:py-12">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-2xl sm:text-3xl font-bold text-primary mb-2 sm:mb-3 px-4">
             {language === "fr" && "Prêt à calculer votre impôt ?"}

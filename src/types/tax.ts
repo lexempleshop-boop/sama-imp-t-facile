@@ -1,5 +1,10 @@
-export type MaritalStatus = "single" | "married";
+export type MaritalStatus = "single" | "married" | "divorced" | "widowed" | "separated" | "cohabiting";
 export type Language = "fr" | "en" | "wo" | "ff";
+
+export type SimulatorType = "salaried" | "business" | "landlord" | "property" | "informal";
+export type ActivityType = "commerce" | "artisanat" | "services" | "liberal" | "other";
+export type PropertyType = "apartment" | "house" | "furnished" | "unfurnished" | "commercial";
+export type InformalActivityType = "shop" | "hairdressing" | "tailoring" | "transport" | "street_vendor" | "mechanic" | "other";
 
 export interface TaxCalculationInput {
   annualIncome: number;
