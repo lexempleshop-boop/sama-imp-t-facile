@@ -40,7 +40,7 @@ export function TaxSimulator() {
   };
 
   return (
-    <div className="grid gap-6 lg:grid-cols-2 w-full max-w-7xl mx-auto">
+    <div className="grid gap-4 lg:grid-cols-2 w-full max-w-7xl mx-auto">
       <Card className="w-full">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
