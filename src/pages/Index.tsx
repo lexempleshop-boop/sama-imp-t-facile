@@ -109,15 +109,15 @@ export default function Index() {
           className="absolute inset-0 bg-cover bg-center opacity-10"
           style={{ backgroundImage: `url(${heroBackground})` }}
         />
-        <div className="relative container mx-auto px-4 py-16 md:py-24">
+        <div className="relative container mx-auto px-4 py-10 md:py-14">
           <div className="mx-auto max-w-3xl text-center">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-primary mb-4 sm:mb-6 px-4">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-primary mb-3 sm:mb-4 px-4">
               {t("heroTitle", language)}
             </h1>
-            <p className="text-lg sm:text-xl text-muted-foreground mb-3 sm:mb-4 px-4">
+            <p className="text-lg sm:text-xl text-muted-foreground mb-2 sm:mb-3 px-4">
               {t("tagline", language)}
             </p>
-            <p className="text-base sm:text-lg text-muted-foreground mb-6 sm:mb-8 px-4">
+            <p className="text-base sm:text-lg text-muted-foreground mb-4 sm:mb-6 px-4">
               {t("description", language)}
             </p>
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4">
@@ -135,9 +135,9 @@ export default function Index() {
       </section>
 
       {/* Features Carousel Section */}
-      <section className="py-12 sm:py-16 md:py-24 bg-muted/30">
+      <section className="py-8 sm:py-12 md:py-16 bg-muted/30">
         <div className="container mx-auto px-4">
-          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12 text-primary">
+          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-6 sm:mb-8 text-primary">
             {language === "fr" && "Nos Services"}
             {language === "en" && "Our Services"}
             {language === "wo" && "Ñu Services"}
@@ -200,15 +200,15 @@ export default function Index() {
       </section>
 
       {/* CTA Section */}
-      <section className="border-t border-border bg-background py-12 sm:py-16">
+      <section className="border-t border-border bg-background py-8 sm:py-12">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-2xl sm:text-3xl font-bold text-primary mb-3 sm:mb-4 px-4">
+          <h2 className="text-2xl sm:text-3xl font-bold text-primary mb-2 sm:mb-3 px-4">
             {language === "fr" && "Prêt à calculer votre impôt ?"}
             {language === "en" && "Ready to calculate your taxes?"}
             {language === "wo" && "Jëkk ngir kajoor sa impôt ?"}
             {language === "ff" && "A heɓii limtude impôt maa?"}
           </h2>
-          <p className="text-base sm:text-lg text-muted-foreground mb-6 sm:mb-8 max-w-2xl mx-auto px-4">
+          <p className="text-base sm:text-lg text-muted-foreground mb-4 sm:mb-6 max-w-2xl mx-auto px-4">
             {language === "fr" && "Utilisez notre simulateur gratuit pour estimer votre contribution fiscale."}
             {language === "en" && "Use our free simulator to estimate your tax contribution."}
             {language === "wo" && "Jëfandikoo simulateur bu njël ngir xam sa contribution fiscale."}
