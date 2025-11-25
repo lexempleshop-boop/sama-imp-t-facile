@@ -5,10 +5,49 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { Calculator, RefreshCw } from "lucide-react";
+import { BusinessTaxInput, BusinessTaxResult, ActivityType } from "@/types/tax";
+import { calculateBusinessTax } from "@/utils/businessTaxCalculator";
 
 export function BusinessSimulator() {
   const { language } = useLanguage();
+  const [input, setInput] = useState<BusinessTaxInput>({
+    activityType: "commerce",
+    annualRevenue: 0,
+    expenses: 0,
+    useRealExpenses: false,
+    location: "",
+    rentalValue: 0,
+    numberOfEmployees: 0,
+    isFormal: true,
+  });
+  const [result, setResult] = useState<BusinessTaxResult | null>(null);
+
+  const handleCalculate = () => {
+    if (input.annualRevenue > 0) {
+      const calculatedResult = calculateBusinessTax(input);
+      setResult(calculatedResult);
+    }
+  };
+
+  const handleReset = () => {
+    setInput({
+      activityType: "commerce",
+      annualRevenue: 0,
+      expenses: 0,
+      useRealExpenses: false,
+      location: "",
+      rentalValue: 0,
+      numberOfEmployees: 0,
+      isFormal: true,
+    });
+    setResult(null);
+  };
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat("fr-FR").format(Math.round(amount)) + " FCFA";
+  };
   const [input, setInput] = useState({
     activityType: "commerce",
     annualRevenue: 0,
