@@ -62,6 +62,7 @@ export const translations: Record<Language, Record<string, string>> = {
     
     // Chatbot
     chatbotTitle: "Assistant Fiscal IA",
+    fiscalistes: "Fiscalistes",
     inDevelopment: "En cours de développement",
     comingSoon: "Cette fonctionnalité sera bientôt disponible. Elle vous permettra de poser vos questions fiscales en langage naturel.",
     backToHome: "Retour à l'accueil",
@@ -120,6 +121,7 @@ export const translations: Record<Language, Record<string, string>> = {
     taxAmount: "Tax amount",
     
     chatbotTitle: "Tax AI Assistant",
+    fiscalistes: "Tax Experts",
     inDevelopment: "Under development",
     comingSoon: "This feature will be available soon. It will allow you to ask your tax questions in natural language.",
     backToHome: "Back to home",
@@ -177,6 +179,7 @@ export const translations: Record<Language, Record<string, string>> = {
     taxAmount: "Montant impôt",
     
     chatbotTitle: "Assistant Fiscal IA",
+    fiscalistes: "Fiscalistes",
     inDevelopment: "Dafa ci liggéey",
     comingSoon: "Bii dina am ba laaj. Dinaa mën laaj sa xalaatu impôt ci làkk bu yaatu.",
     backToHome: "Dellu ci kër",
@@ -234,6 +237,7 @@ export const translations: Record<Language, Record<string, string>> = {
     taxAmount: "Montant impôt",
     
     chatbotTitle: "Assistant Fiscal IA",
+    fiscalistes: "Fiscalistes",
     inDevelopment: "Ko gollaama",
     comingSoon: "Ɗuum mbaawi ɓeydude yeeso. Maa waawi naamndaade mbelu impôt e ɗemngal ganndal.",
     backToHome: "Rutto e jaɓɓugol",

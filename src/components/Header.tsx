@@ -2,7 +2,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { t } from "@/utils/translations";
 import { LanguageSelector } from "./LanguageSelector";
 import { Link, useLocation } from "react-router-dom";
-import { Calculator, MessageCircle, Home, Info } from "lucide-react";
+import { Calculator, MessageCircle, Home, Info, GraduationCap } from "lucide-react";
 
 export function Header() {
   const { language } = useLanguage();
@@ -12,6 +12,7 @@ export function Header() {
     { path: "/", label: t("home", language), icon: Home },
     { path: "/simulator", label: t("simulator", language), icon: Calculator },
     { path: "/chatbot", label: t("chatbot", language), icon: MessageCircle },
+    { path: "/fiscalistes", label: t("fiscalistes", language), icon: GraduationCap },
     { path: "/formalization", label: t("formalization", language), icon: Info },
     { path: "/about", label: t("about", language), icon: Info },
   ];
