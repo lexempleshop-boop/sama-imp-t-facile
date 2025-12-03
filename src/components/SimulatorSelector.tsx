@@ -1,13 +1,12 @@
 import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Briefcase, Building2, Home, Users, Calculator } from "lucide-react";
+import { Briefcase, Building2, Home, Calculator, ArrowLeft, Sparkles } from "lucide-react";
 import { TaxSimulator } from "./TaxSimulator";
 import { BusinessSimulator } from "./BusinessSimulator";
 import { LandlordSimulator } from "./LandlordSimulator";
 import { PropertySimulator } from "./PropertySimulator";
-import { InformalSimulator } from "./InformalSimulator";
 import { SimulatorType } from "@/types/tax";
 
 export function SimulatorSelector() {
@@ -20,87 +19,104 @@ export function SimulatorSelector() {
       icon: Calculator,
       title: { fr: "Salarié", en: "Salaried", wo: "Salarié", ff: "Salarié" },
       description: { fr: "Calculez votre IRPP", en: "Calculate your IRPP", wo: "Kajoor sa IRPP", ff: "Limtu IRPP maa" },
-      color: "bg-blue-500/10 hover:bg-blue-500/20",
+      gradient: "from-blue-500/20 to-blue-600/10",
+      iconBg: "bg-blue-500",
+      borderColor: "border-blue-500/30 hover:border-blue-500/60",
     },
     {
       type: "business" as SimulatorType,
       icon: Briefcase,
       title: { fr: "Commerçant / Artisan", en: "Merchant / Artisan", wo: "Sëriñ / Artisan", ff: "Ceeɗoowo / Artisan" },
       description: { fr: "Patente, IR, CEL", en: "Patente, IR, CEL", wo: "Patente, IR, CEL", ff: "Patente, IR, CEL" },
-      color: "bg-green-500/10 hover:bg-green-500/20",
+      gradient: "from-emerald-500/20 to-emerald-600/10",
+      iconBg: "bg-emerald-500",
+      borderColor: "border-emerald-500/30 hover:border-emerald-500/60",
     },
     {
       type: "landlord" as SimulatorType,
       icon: Building2,
       title: { fr: "Bailleur", en: "Landlord", wo: "Bailleur", ff: "Bailleur" },
       description: { fr: "Revenus fonciers", en: "Rental income", wo: "Njëg ci kër", ff: "Yurnde suudu" },
-      color: "bg-purple-500/10 hover:bg-purple-500/20",
+      gradient: "from-violet-500/20 to-violet-600/10",
+      iconBg: "bg-violet-500",
+      borderColor: "border-violet-500/30 hover:border-violet-500/60",
     },
     {
       type: "property" as SimulatorType,
       icon: Home,
       title: { fr: "Propriétaire", en: "Property Owner", wo: "Boroom kër", ff: "Jom suudu" },
       description: { fr: "CFPB, CFPNB", en: "CFPB, CFPNB", wo: "CFPB, CFPNB", ff: "CFPB, CFPNB" },
-      color: "bg-orange-500/10 hover:bg-orange-500/20",
-    },
-    {
-      type: "informal" as SimulatorType,
-      icon: Users,
-      title: { fr: "Secteur Informel", en: "Informal Sector", wo: "Secteur Informel", ff: "Secteur Informel" },
-      description: { fr: "Formalisation", en: "Formalization", wo: "Formalisation", ff: "Formalisation" },
-      color: "bg-amber-500/10 hover:bg-amber-500/20",
+      gradient: "from-amber-500/20 to-amber-600/10",
+      iconBg: "bg-amber-500",
+      borderColor: "border-amber-500/30 hover:border-amber-500/60",
     },
   ];
 
   if (selectedType) {
     return (
-      <div className="space-y-4">
-        <Button variant="outline" onClick={() => setSelectedType(null)}>
-          ← {language === "fr" ? "Retour" : language === "en" ? "Back" : language === "wo" ? "Dellu" : "Rutto"}
+      <div className="space-y-6">
+        <Button 
+          variant="ghost" 
+          onClick={() => setSelectedType(null)}
+          className="gap-2 text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          {language === "fr" ? "Retour aux simulateurs" : language === "en" ? "Back to simulators" : language === "wo" ? "Dellu ci simulateurs yi" : "Rutto e simulateurs"}
         </Button>
         {selectedType === "salaried" && <TaxSimulator />}
         {selectedType === "business" && <BusinessSimulator />}
         {selectedType === "landlord" && <LandlordSimulator />}
         {selectedType === "property" && <PropertySimulator />}
-        {selectedType === "informal" && <InformalSimulator />}
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="text-center">
-        <h2 className="text-2xl md:text-3xl font-bold text-primary mb-2">
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="text-center space-y-4">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
+          <Sparkles className="w-4 h-4 text-primary" />
+          <span className="text-sm font-medium text-primary">
+            {language === "fr" ? "Simulateurs Fiscaux" : "Tax Simulators"}
+          </span>
+        </div>
+        <h2 className="text-3xl md:text-4xl font-bold">
           {language === "fr" && "Choisissez votre profil"}
           {language === "en" && "Choose your profile"}
           {language === "wo" && "Taan sa profil"}
           {language === "ff" && "Suɓo profil maa"}
         </h2>
-        <p className="text-muted-foreground">
-          {language === "fr" && "Sélectionnez le simulateur adapté à votre situation"}
-          {language === "en" && "Select the simulator suited to your situation"}
+        <p className="text-muted-foreground max-w-2xl mx-auto">
+          {language === "fr" && "Sélectionnez le simulateur adapté à votre situation pour estimer vos obligations fiscales"}
+          {language === "en" && "Select the simulator suited to your situation to estimate your tax obligations"}
           {language === "wo" && "Taan simulateur bu am solo ak sa xalaat"}
           {language === "ff" && "Suɓo simulateur ngoongɗinɗo e ngonka maa"}
         </p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {/* Simulator Cards */}
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 max-w-6xl mx-auto">
         {simulatorTypes.map((simulator) => {
           const Icon = simulator.icon;
           return (
             <Card
               key={simulator.type}
-              className={`cursor-pointer transition-all hover:scale-105 ${simulator.color} border-2`}
+              className={`cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-xl bg-gradient-to-br ${simulator.gradient} border-2 ${simulator.borderColor} group`}
               onClick={() => setSelectedType(simulator.type)}
             >
-              <CardHeader>
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-background/50">
-                    <Icon className="w-6 h-6" />
-                  </div>
-                  <CardTitle className="text-lg">{simulator.title[language]}</CardTitle>
+              <CardHeader className="space-y-4">
+                <div className={`w-14 h-14 rounded-2xl ${simulator.iconBg} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                  <Icon className="w-7 h-7 text-white" />
                 </div>
-                <CardDescription>{simulator.description[language]}</CardDescription>
+                <div className="space-y-2">
+                  <CardTitle className="text-lg group-hover:text-primary transition-colors">
+                    {simulator.title[language]}
+                  </CardTitle>
+                  <CardDescription className="text-sm">
+                    {simulator.description[language]}
+                  </CardDescription>
+                </div>
               </CardHeader>
             </Card>
           );

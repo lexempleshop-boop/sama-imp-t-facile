@@ -1,7 +1,7 @@
 export type MaritalStatus = "single" | "married" | "divorced" | "widowed" | "separated" | "cohabiting";
 export type Language = "fr" | "en" | "wo" | "ff";
 
-export type SimulatorType = "salaried" | "business" | "landlord" | "property" | "informal";
+export type SimulatorType = "salaried" | "business" | "landlord" | "property";
 export type ActivityType = "commerce" | "artisanat" | "services" | "liberal" | "other";
 export type PropertyType = "apartment" | "house" | "furnished" | "unfurnished" | "commercial";
 export type InformalActivityType = "shop" | "hairdressing" | "tailoring" | "transport" | "street_vendor" | "mechanic" | "other";
@@ -87,17 +87,21 @@ export interface LandlordTaxResult {
 // Property Owner Calculator Inputs
 export interface PropertyOwnerTaxInput {
   propertyType: PropertyOwnershipType;
-  rentalValue: number;
   estimatedValue: number;
   location: string;
-  hasExemption: boolean;
+  surfaceArea?: number;
 }
 
 export interface PropertyOwnerTaxResult {
-  taxableBase: number;
+  propertyType: PropertyOwnershipType;
+  estimatedValue: number;
+  taxableValue: number;
   cfpb: number;
   cfpnb: number;
   totalTax: number;
+  effectiveRate: number;
+  exemption: boolean;
+  exemptionReason?: string;
 }
 
 // Informal Sector Calculator Inputs

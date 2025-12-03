@@ -4,31 +4,32 @@ import { PropertyOwnerTaxInput, PropertyOwnerTaxResult } from "@/types/tax";
 const CFPB_RATE = 0.05; // 5% de la valeur locative
 
 // Taux CFPNB (Contribution Foncière des Propriétés Non Bâties)
-const CFPNB_RATE = 0.03; // 3% de la valeur estimée
+const CFPNB_RATE = 0.05; // 5% de la valeur estimée
 
 export function calculatePropertyOwnerTax(input: PropertyOwnerTaxInput): PropertyOwnerTaxResult {
-  const { propertyType, rentalValue, estimatedValue, hasExemption } = input;
+  const { propertyType, estimatedValue, location } = input;
 
   let cfpb = 0;
   let cfpnb = 0;
-  let taxableBase = 0;
+  const taxableValue = estimatedValue;
 
   if (propertyType === "built") {
-    // Propriété bâtie -> CFPB
-    taxableBase = rentalValue;
-    cfpb = hasExemption ? 0 : rentalValue * CFPB_RATE;
+    cfpb = estimatedValue * CFPB_RATE;
   } else {
-    // Terrain nu -> CFPNB
-    taxableBase = estimatedValue;
-    cfpnb = hasExemption ? 0 : estimatedValue * CFPNB_RATE;
+    cfpnb = estimatedValue * CFPNB_RATE;
   }
 
   const totalTax = cfpb + cfpnb;
+  const effectiveRate = estimatedValue > 0 ? (totalTax / estimatedValue) * 100 : 0;
 
   return {
-    taxableBase,
+    propertyType,
+    estimatedValue,
+    taxableValue,
     cfpb,
     cfpnb,
     totalTax,
+    effectiveRate,
+    exemption: false,
   };
 }
