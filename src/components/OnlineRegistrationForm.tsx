@@ -4,13 +4,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Upload, FileText, CheckCircle2, ArrowLeft, Loader2 } from "lucide-react";
+import { Upload, FileText, CheckCircle2, ArrowLeft, Loader2, Smartphone } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface RegistrationFormData {
     firstName: string;
     lastName: string;
     phone: string;
+    paymentMethod: "wave" | "orange" | "";
+    paymentPhone: string;
     cni: File | null;
     certificatResidence: File | null;
     bailCommercial: File | null;
@@ -25,6 +27,8 @@ export function OnlineRegistrationForm({ onBack }: { onBack: () => void }) {
         firstName: "",
         lastName: "",
         phone: "",
+        paymentMethod: "",
+        paymentPhone: "",
         cni: null,
         certificatResidence: null,
         bailCommercial: null,
@@ -55,6 +59,17 @@ export function OnlineRegistrationForm({ onBack }: { onBack: () => void }) {
                 description: language === "fr"
                     ? "Veuillez télécharger tous les documents requis"
                     : "Please upload all required documents",
+                variant: "destructive",
+            });
+            return;
+        }
+
+        if (!formData.paymentMethod || !formData.paymentPhone) {
+            toast({
+                title: language === "fr" ? "Informations de paiement manquantes" : "Missing payment information",
+                description: language === "fr"
+                    ? "Veuillez sélectionner un mode de paiement et entrer votre numéro"
+                    : "Please select a payment method and enter your number",
                 variant: "destructive",
             });
             return;
@@ -215,7 +230,6 @@ export function OnlineRegistrationForm({ onBack }: { onBack: () => void }) {
                                     id="cni"
                                     type="file"
                                     accept="image/*,.pdf"
-                                    capture="environment"
                                     onChange={(e) => handleFileChange('cni', e.target.files?.[0] || null)}
                                     className="cursor-pointer flex-1"
                                 />
@@ -244,7 +258,6 @@ export function OnlineRegistrationForm({ onBack }: { onBack: () => void }) {
                                     id="certificat"
                                     type="file"
                                     accept="image/*,.pdf"
-                                    capture="environment"
                                     onChange={(e) => handleFileChange('certificatResidence', e.target.files?.[0] || null)}
                                     className="cursor-pointer flex-1"
                                 />
@@ -273,7 +286,6 @@ export function OnlineRegistrationForm({ onBack }: { onBack: () => void }) {
                                     id="bail"
                                     type="file"
                                     accept="image/*,.pdf"
-                                    capture="environment"
                                     onChange={(e) => handleFileChange('bailCommercial', e.target.files?.[0] || null)}
                                     className="cursor-pointer flex-1"
                                 />
@@ -287,8 +299,86 @@ export function OnlineRegistrationForm({ onBack }: { onBack: () => void }) {
                             )}
                             <p className="text-xs text-muted-foreground">
                                 {language === "fr"
-                                    ? "💡 Astuce: Sur mobile, vous pouvez scanner directement avec votre caméra"
-                                    : "💡 Tip: On mobile, you can scan directly with your camera"}
+                                    ? "💡 Vous pouvez prendre une photo ou choisir un fichier existant"
+                                    : "💡 You can take a photo or choose an existing file"}
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Payment Section */}
+                    <div className="space-y-4">
+                        <h3 className="font-semibold text-lg flex items-center gap-2">
+                            <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm">3</div>
+                            {language === "fr" ? "Paiement des frais d'inscription" : "Registration fee payment"}
+                        </h3>
+
+                        <div className="bg-primary/5 p-4 rounded-lg border border-primary/20">
+                            <p className="text-sm font-semibold mb-2">
+                                {language === "fr" ? "Montant à payer: 25 000 FCFA" : "Amount to pay: 25,000 FCFA"}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                                {language === "fr"
+                                    ? "Le paiement sera effectué immédiatement lors de l'envoi du formulaire"
+                                    : "Payment will be processed immediately upon form submission"}
+                            </p>
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label>
+                                {language === "fr" ? "Mode de paiement" : "Payment method"} <span className="text-destructive">*</span>
+                            </Label>
+                            <div className="grid grid-cols-2 gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() => setFormData(prev => ({ ...prev, paymentMethod: "wave" }))}
+                                    className={`p-4 rounded-lg border-2 transition-all ${formData.paymentMethod === "wave"
+                                            ? "border-primary bg-primary/10"
+                                            : "border-border hover:border-primary/50"
+                                        }`}
+                                >
+                                    <div className="flex flex-col items-center gap-2">
+                                        <Smartphone className="h-8 w-8 text-blue-600" />
+                                        <span className="font-semibold text-sm">Wave</span>
+                                        {formData.paymentMethod === "wave" && (
+                                            <CheckCircle2 className="h-4 w-4 text-primary" />
+                                        )}
+                                    </div>
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setFormData(prev => ({ ...prev, paymentMethod: "orange" }))}
+                                    className={`p-4 rounded-lg border-2 transition-all ${formData.paymentMethod === "orange"
+                                            ? "border-primary bg-primary/10"
+                                            : "border-border hover:border-primary/50"
+                                        }`}
+                                >
+                                    <div className="flex flex-col items-center gap-2">
+                                        <Smartphone className="h-8 w-8 text-orange-600" />
+                                        <span className="font-semibold text-sm">Orange Money</span>
+                                        {formData.paymentMethod === "orange" && (
+                                            <CheckCircle2 className="h-4 w-4 text-primary" />
+                                        )}
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="paymentPhone">
+                                {language === "fr" ? "Numéro de téléphone pour le paiement" : "Phone number for payment"} <span className="text-destructive">*</span>
+                            </Label>
+                            <Input
+                                id="paymentPhone"
+                                type="tel"
+                                value={formData.paymentPhone}
+                                onChange={(e) => setFormData(prev => ({ ...prev, paymentPhone: e.target.value }))}
+                                placeholder={language === "fr" ? "Ex: 77 123 45 67" : "Ex: 77 123 45 67"}
+                                required
+                            />
+                            <p className="text-xs text-muted-foreground">
+                                {language === "fr"
+                                    ? "Assurez-vous que ce numéro est associé à votre compte Wave ou Orange Money"
+                                    : "Make sure this number is associated with your Wave or Orange Money account"}
                             </p>
                         </div>
                     </div>
