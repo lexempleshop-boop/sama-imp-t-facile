@@ -33,11 +33,10 @@ export function Header() {
               <Link
                 key={path}
                 to={path}
-                className={`flex items-center gap-2 text-sm font-medium transition-all duration-200 hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-md px-2 py-1 ${
-                  location.pathname === path 
-                    ? "text-primary bg-primary/10 font-semibold" 
-                    : "text-muted-foreground hover:bg-accent"
-                }`}
+                className={`flex items-center gap-2 text-sm font-medium transition-all duration-200 hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-md px-2 py-1 ${location.pathname === path
+                  ? "text-primary bg-primary/10 font-semibold"
+                  : "text-muted-foreground hover:bg-accent"
+                  }`}
               >
                 <Icon className="h-4 w-4" />
                 {label}
@@ -54,14 +53,13 @@ export function Header() {
             <Link
               key={path}
               to={path}
-              className={`flex flex-col items-center gap-1 text-xs transition-all duration-200 rounded-md px-2 py-1 ${
-                location.pathname === path 
-                  ? "text-primary bg-primary/10 font-semibold" 
-                  : "text-muted-foreground"
-              }`}
+              className={`flex flex-col items-center gap-0.5 text-[10px] transition-all duration-200 rounded-md px-1.5 py-1 max-w-[60px] ${location.pathname === path
+                ? "text-primary bg-primary/10 font-semibold"
+                : "text-muted-foreground"
+                }`}
             >
-              <Icon className="h-5 w-5" />
-              <span>{label}</span>
+              <Icon className="h-4 w-4" />
+              <span className="truncate w-full text-center">{label}</span>
             </Link>
           ))}
         </nav>

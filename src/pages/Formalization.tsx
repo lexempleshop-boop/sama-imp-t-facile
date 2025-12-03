@@ -28,7 +28,7 @@ export default function Formalization() {
 
   const getRecommendation = () => {
     const turnoverNum = parseFloat(turnover) || 0;
-    
+
     if (turnoverNum < 50000000) {
       return {
         regime: language === "fr" ? "Contribution Globale Unique (CGU)" : "Single Global Contribution (CGU)",
@@ -122,7 +122,7 @@ export default function Formalization() {
             {language === "fr" ? "Guide de Formalisation" : "Formalization Guide"}
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            {language === "fr" 
+            {language === "fr"
               ? "Transformez votre activité informelle en entreprise formelle. Suivez notre parcours guidé pour découvrir les démarches adaptées à votre situation."
               : "Transform your informal activity into a formal business. Follow our guided path to discover the steps suited to your situation."}
           </p>

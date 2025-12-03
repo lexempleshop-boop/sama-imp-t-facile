@@ -102,10 +102,10 @@ export default function Index() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       {/* Hero Section */}
       <section className="relative overflow-hidden border-b border-border">
-        <div 
+        <div
           className="absolute inset-0 bg-cover bg-center opacity-10"
           style={{ backgroundImage: `url(${heroBackground})` }}
         />
@@ -162,7 +162,7 @@ export default function Index() {
                   return (
                     <CarouselItem key={index} className="pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3">
                       <div className="p-1 h-full">
-                        <Card 
+                        <Card
                           className="h-full hover:shadow-lg transition-all cursor-pointer hover:scale-105"
                           onClick={() => navigate(feature.link)}
                         >

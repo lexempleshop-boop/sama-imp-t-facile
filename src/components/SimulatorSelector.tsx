@@ -52,76 +52,95 @@ export function SimulatorSelector() {
     },
   ];
 
-  if (selectedType) {
-    return (
-      <div className="space-y-6">
-        <Button 
-          variant="ghost" 
-          onClick={() => setSelectedType(null)}
-          className="gap-2 text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          {language === "fr" ? "Retour aux simulateurs" : language === "en" ? "Back to simulators" : language === "wo" ? "Dellu ci simulateurs yi" : "Rutto e simulateurs"}
-        </Button>
-        {selectedType === "salaried" && <TaxSimulator />}
-        {selectedType === "business" && <BusinessSimulator />}
-        {selectedType === "landlord" && <LandlordSimulator />}
-        {selectedType === "property" && <PropertySimulator />}
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="text-center space-y-4">
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
-          <Sparkles className="w-4 h-4 text-primary" />
-          <span className="text-sm font-medium text-primary">
-            {language === "fr" ? "Simulateurs Fiscaux" : "Tax Simulators"}
-          </span>
+    <div className="w-full">
+      {selectedType ? (
+        <div className="space-y-6">
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => {
+              setSelectedType(null);
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+            className="gap-2 text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            {language === "fr" ? "Retour aux simulateurs" : language === "en" ? "Back to simulators" : language === "wo" ? "Dellu ci simulateurs yi" : "Rutto e simulateurs"}
+          </Button>
+          {selectedType === "salaried" && <TaxSimulator />}
+          {selectedType === "business" && <BusinessSimulator />}
+          {selectedType === "landlord" && <LandlordSimulator />}
+          {selectedType === "property" && <PropertySimulator />}
         </div>
-        <h2 className="text-3xl md:text-4xl font-bold">
-          {language === "fr" && "Choisissez votre profil"}
-          {language === "en" && "Choose your profile"}
-          {language === "wo" && "Taan sa profil"}
-          {language === "ff" && "Suɓo profil maa"}
-        </h2>
-        <p className="text-muted-foreground max-w-2xl mx-auto">
-          {language === "fr" && "Sélectionnez le simulateur adapté à votre situation pour estimer vos obligations fiscales"}
-          {language === "en" && "Select the simulator suited to your situation to estimate your tax obligations"}
-          {language === "wo" && "Taan simulateur bu am solo ak sa xalaat"}
-          {language === "ff" && "Suɓo simulateur ngoongɗinɗo e ngonka maa"}
-        </p>
-      </div>
+      ) : (
+        <div className="space-y-8">
+          {/* Header */}
+          <div className="text-center space-y-4 px-4">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 backdrop-blur-sm">
+              <Sparkles className="w-4 h-4 text-primary animate-pulse" />
+              <span className="text-sm font-medium text-primary">
+                {language === "fr" ? "Simulateurs Fiscaux" : "Tax Simulators"}
+              </span>
+            </div>
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+              {language === "fr" && "Choisissez votre profil"}
+              {language === "en" && "Choose your profile"}
+              {language === "wo" && "Taan sa profil"}
+              {language === "ff" && "Suɓo profil maa"}
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto text-base md:text-lg">
+              {language === "fr" && "Sélectionnez le simulateur adapté à votre situation pour estimer vos obligations fiscales"}
+              {language === "en" && "Select the simulator suited to your situation to estimate your tax obligations"}
+              {language === "wo" && "Taan simulateur bu am solo ak sa xalaat"}
+              {language === "ff" && "Suɓo simulateur ngoongɗinɗo e ngonka maa"}
+            </p>
+          </div>
 
-      {/* Simulator Cards */}
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 max-w-6xl mx-auto">
-        {simulatorTypes.map((simulator) => {
-          const Icon = simulator.icon;
-          return (
-            <Card
-              key={simulator.type}
-              className={`cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-xl bg-gradient-to-br ${simulator.gradient} border-2 ${simulator.borderColor} group`}
-              onClick={() => setSelectedType(simulator.type)}
-            >
-              <CardHeader className="space-y-4">
-                <div className={`w-14 h-14 rounded-2xl ${simulator.iconBg} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-                  <Icon className="w-7 h-7 text-white" />
-                </div>
-                <div className="space-y-2">
-                  <CardTitle className="text-lg group-hover:text-primary transition-colors">
-                    {simulator.title[language]}
-                  </CardTitle>
-                  <CardDescription className="text-sm">
-                    {simulator.description[language]}
-                  </CardDescription>
-                </div>
-              </CardHeader>
-            </Card>
-          );
-        })}
-      </div>
+          {/* Simulator Cards */}
+          <div className="grid gap-4 md:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 max-w-7xl mx-auto px-4">
+            {simulatorTypes.map((simulator) => {
+              const Icon = simulator.icon;
+              return (
+                <Card
+                  key={simulator.type}
+                  className={`cursor-pointer transition-all duration-300 hover:scale-[1.03] active:scale-[0.98] bg-gradient-to-br ${simulator.gradient} border-2 ${simulator.borderColor} group relative overflow-hidden shadow-lg hover:shadow-2xl`}
+                  onClick={() => {
+                    setSelectedType(simulator.type);
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                >
+                  {/* Decorative gradient overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                  <CardHeader className="space-y-4 relative z-10 p-6">
+                    <div className="flex items-start justify-between">
+                      <div className={`w-16 h-16 md:w-14 md:h-14 rounded-2xl ${simulator.iconBg} flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-all duration-300`}>
+                        <Icon className="w-8 h-8 md:w-7 md:h-7 text-white" />
+                      </div>
+                      <div className="w-2 h-2 rounded-full bg-primary/30 group-hover:bg-primary group-hover:scale-150 transition-all duration-300" />
+                    </div>
+                    <div className="space-y-2">
+                      <CardTitle className="text-lg md:text-base font-bold group-hover:text-primary transition-colors leading-tight">
+                        {simulator.title[language]}
+                      </CardTitle>
+                      <CardDescription className="text-sm text-muted-foreground/80 group-hover:text-muted-foreground transition-colors">
+                        {simulator.description[language]}
+                      </CardDescription>
+                    </div>
+
+                    {/* Arrow indicator */}
+                    <div className="flex items-center gap-2 text-xs font-medium text-primary/60 group-hover:text-primary transition-colors pt-2">
+                      <span>{language === "fr" ? "Commencer" : "Start"}</span>
+                      <ArrowLeft className="w-3 h-3 rotate-180 group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  </CardHeader>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
