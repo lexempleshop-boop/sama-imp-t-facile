@@ -5,9 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CheckCircle2, FileText, Building2, Users, ClipboardCheck } from "lucide-react";
+import { CheckCircle2, FileText, Building2, Users, ClipboardCheck, MousePointerClick } from "lucide-react";
 import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { OnlineRegistrationForm } from "@/components/OnlineRegistrationForm";
 
 type BusinessType = "commerce" | "artisanat" | "service" | "agriculture" | "";
 type LegalForm = "individuelle" | "sarl" | "sa" | "gie" | "";
@@ -20,6 +21,7 @@ export default function Formalization() {
   const [employees, setEmployees] = useState("");
   const [legalForm, setLegalForm] = useState<LegalForm>("");
   const [showResults, setShowResults] = useState(false);
+  const [showOnlineRegistration, setShowOnlineRegistration] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -128,7 +130,9 @@ export default function Formalization() {
           </p>
         </div>
 
-        {!showResults ? (
+        {showOnlineRegistration ? (
+          <OnlineRegistrationForm onBack={() => setShowOnlineRegistration(false)} />
+        ) : !showResults ? (
           <Card className="border-2">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -267,6 +271,27 @@ export default function Formalization() {
                         </li>
                       ))}
                     </ul>
+
+                    {/* Add online registration button for Commerce Registry step */}
+                    {index === 0 && (
+                      <div className="mt-4 pt-4 border-t">
+                        <Button
+                          onClick={() => setShowOnlineRegistration(true)}
+                          className="w-full"
+                          variant="default"
+                        >
+                          <MousePointerClick className="h-4 w-4 mr-2" />
+                          {language === "fr"
+                            ? "S'inscrire en ligne"
+                            : "Register online"}
+                        </Button>
+                        <p className="text-xs text-muted-foreground text-center mt-2">
+                          {language === "fr"
+                            ? "Soumettez votre demande sans vous déplacer"
+                            : "Submit your request without traveling"}
+                        </p>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               ))}
