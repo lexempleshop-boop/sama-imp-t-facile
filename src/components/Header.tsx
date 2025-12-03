@@ -2,7 +2,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { t } from "@/utils/translations";
 import { LanguageSelector } from "./LanguageSelector";
 import { Link, useLocation } from "react-router-dom";
-import { Calculator, MessageCircle, Home, Info, GraduationCap } from "lucide-react";
+import { Calculator, MessageCircle, Home, Info } from "lucide-react";
 
 export function Header() {
   const { language } = useLanguage();
@@ -12,7 +12,6 @@ export function Header() {
     { path: "/", label: t("home", language), icon: Home },
     { path: "/simulator", label: t("simulator", language), icon: Calculator },
     { path: "/chatbot", label: t("chatbot", language), icon: MessageCircle },
-    { path: "/fiscalistes", label: t("fiscalistes", language), icon: GraduationCap },
     { path: "/formalization", label: t("formalization", language), icon: Info },
     { path: "/about", label: t("about", language), icon: Info },
   ];
@@ -53,13 +52,13 @@ export function Header() {
             <Link
               key={path}
               to={path}
-              className={`flex flex-col items-center gap-0.5 text-[10px] transition-all duration-200 rounded-md px-1.5 py-1 max-w-[60px] ${location.pathname === path
+              className={`flex flex-col items-center gap-0.5 text-[10px] transition-all duration-200 rounded-md px-1.5 py-1 ${location.pathname === path
                 ? "text-primary bg-primary/10 font-semibold"
                 : "text-muted-foreground"
                 }`}
             >
               <Icon className="h-4 w-4" />
-              <span className="truncate w-full text-center">{label}</span>
+              <span className="text-center leading-tight">{label}</span>
             </Link>
           ))}
         </nav>
