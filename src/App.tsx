@@ -13,6 +13,7 @@ import About from "./pages/About";
 import Auth from "./pages/Auth";
 import Documents from "./pages/Documents";
 import ExpertRequest from "./pages/ExpertRequest";
+import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +33,7 @@ const App = () => (
               <Route path="/formalization" element={<Formalization />} />
               <Route path="/documents" element={<Documents />} />
               <Route path="/expert-request" element={<ExpertRequest />} />
+              <Route path="/admin" element={<Admin />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/about" element={<About />} />
               <Route path="*" element={<NotFound />} />

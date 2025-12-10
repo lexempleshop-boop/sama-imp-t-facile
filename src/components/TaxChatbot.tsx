@@ -1,271 +1,6 @@
-// import { useState, useRef, useEffect } from "react";
-// import { useLanguage } from "@/contexts/LanguageContext";
-// import { t } from "@/utils/translations";
-// import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-// import { Button } from "@/components/ui/button";
-// import { Input } from "@/components/ui/input";
-// import { ScrollArea } from "@/components/ui/scroll-area";
-// import { MessageCircle, Send, Loader2 } from "lucide-react";
-// import { useToast } from "@/hooks/use-toast";
-
-// interface Message {
-//   role: "user" | "assistant";
-//   content: string;
-// }
-
-// export function TaxChatbot() {
-//   const { language } = useLanguage();
-//   const { toast } = useToast();
-//   const [messages, setMessages] = useState<Message[]>([]);
-//   const [input, setInput] = useState("");
-//   const [isLoading, setIsLoading] = useState(false);
-//   const [isTyping, setIsTyping] = useState(false);
-//   const scrollAreaRef = useRef<HTMLDivElement>(null);
-//   const messagesEndRef = useRef<HTMLDivElement>(null);
-
-//   const scrollToBottom = () => {
-//     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-//   };
-
-//   useEffect(() => {
-//     scrollToBottom();
-//   }, [messages]);
-
-//   const sendMessage = async () => {
-//     if (!input.trim() || isLoading) return;
-
-//     const userMessage: Message = { role: "user", content: input };
-//     setMessages((prev) => [...prev, userMessage]);
-//     setInput("");
-//     setIsLoading(true);
-//     setIsTyping(true);
-
-//     try {
-//       const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-//       const response = await fetch(`${SUPABASE_URL}/functions/v1/tax-chatbot`, {
-//         method: "POST",
-//         headers: {
-//           "Content-Type": "application/json",
-//           Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-//         },
-//         body: JSON.stringify({
-//           messages: [...messages, userMessage],
-//           language,
-//         }),
-//       });
-
-//       if (response.status === 429 || response.status === 402) {
-//         const errorData = await response.json();
-//         toast({
-//           title: "Erreur",
-//           description: errorData.error,
-//           variant: "destructive",
-//         });
-//         setIsLoading(false);
-//         setIsTyping(false);
-//         return;
-//       }
-
-//       if (!response.ok || !response.body) {
-//         throw new Error("Erreur de communication avec le chatbot");
-//       }
-
-//       const reader = response.body.getReader();
-//       const decoder = new TextDecoder();
-//       let assistantMessage = "";
-//       let buffer = "";
-//       let hasStartedTyping = false;
-
-//       // Initial 3 second delay before starting to type
-//       await new Promise((resolve) => setTimeout(resolve, 3000));
-//       hasStartedTyping = true;
-
-//       // Add assistant message placeholder
-//       setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
-
-//       const updateAssistantMessage = (newContent: string) => {
-//         setMessages((prev) => {
-//           const newMessages = [...prev];
-//           const lastMessage = newMessages[newMessages.length - 1];
-//           if (lastMessage?.role === "assistant") {
-//             lastMessage.content = newContent;
-//           }
-//           return newMessages;
-//         });
-//       };
-
-//       while (true) {
-//         const { done, value } = await reader.read();
-//         if (done) break;
-
-//         buffer += decoder.decode(value, { stream: true });
-
-//         let newlineIndex: number;
-//         while ((newlineIndex = buffer.indexOf("\n")) !== -1) {
-//           let line = buffer.slice(0, newlineIndex);
-//           buffer = buffer.slice(newlineIndex + 1);
-
-//           if (line.endsWith("\r")) line = line.slice(0, -1);
-//           if (line.startsWith(":") || line.trim() === "") continue;
-//           if (!line.startsWith("data: ")) continue;
-
-//           const jsonStr = line.slice(6).trim();
-//           if (jsonStr === "[DONE]") continue;
-
-//           try {
-//             const parsed = JSON.parse(jsonStr);
-//             const content = parsed.choices?.[0]?.delta?.content as string | undefined;
-
-//             if (content) {
-//               // Simulate word-by-word typing with delays
-//               const words = content.split(" ");
-//               for (const word of words) {
-//                 assistantMessage += (assistantMessage ? " " : "") + word;
-//                 updateAssistantMessage(assistantMessage);
-//                 // Small delay between words for natural typing effect
-//                 await new Promise((resolve) => setTimeout(resolve, 50));
-//               }
-//             }
-//           } catch {
-//             buffer = line + "\n" + buffer;
-//             break;
-//           }
-//         }
-//       }
-
-//       // Process any remaining buffer
-//       if (buffer.trim()) {
-//         const lines = buffer.split("\n");
-//         for (const line of lines) {
-//           if (!line || line.startsWith(":") || !line.startsWith("data: ")) continue;
-//           const jsonStr = line.slice(6).trim();
-//           if (jsonStr === "[DONE]") continue;
-
-//           try {
-//             const parsed = JSON.parse(jsonStr);
-//             const content = parsed.choices?.[0]?.delta?.content as string | undefined;
-//             if (content) {
-//               assistantMessage += content;
-//               updateAssistantMessage(assistantMessage);
-//             }
-//           } catch {
-//             // Ignore parse errors in final flush
-//           }
-//         }
-//       }
-
-//       setIsTyping(false);
-//     } catch (error) {
-//       console.error("Chatbot error:", error);
-//       toast({
-//         title: "Erreur",
-//         description: error instanceof Error ? error.message : "Une erreur est survenue",
-//         variant: "destructive",
-//       });
-//       // Remove the placeholder assistant message on error
-//       setMessages((prev) => prev.filter((msg) => msg.content !== ""));
-//       setIsTyping(false);
-//     } finally {
-//       setIsLoading(false);
-//     }
-//   };
-
-//   const handleKeyPress = (e: React.KeyboardEvent) => {
-//     if (e.key === "Enter" && !e.shiftKey) {
-//       e.preventDefault();
-//       sendMessage();
-//     }
-//   };
-
-//   const welcomeMessages: Record<string, string> = {
-//     fr: "Bonjour ! Je suis votre assistant fiscal. Posez-moi vos questions sur l'impôt au Sénégal.",
-//     en: "Hello! I'm your tax assistant. Ask me questions about taxes in Senegal.",
-//     wo: "Asalaa maalekum ! Man mooy assistant bi ci impôt yi. Laaj ma sa xalaatu ci impôt yi ci Sénégal.",
-//     ff: "Jam waali! Mi ko assistant maa e impôt. Naamna mbelu maa e impôt e Senegal.",
-//   };
-
-//   return (
-//     <Card className="w-full max-w-4xl mx-auto h-[600px] md:h-[700px] flex flex-col">
-//       <CardHeader>
-//         <CardTitle className="flex items-center gap-2">
-//           <MessageCircle className="h-5 w-5" />
-//           {t("chatbotTitle", language)}
-//         </CardTitle>
-//       </CardHeader>
-//       <CardContent className="flex-1 flex flex-col gap-4 p-4">
-//         <ScrollArea className="flex-1 pr-4" ref={scrollAreaRef}>
-//           {messages.length === 0 && (
-//             <div className="flex items-center justify-center h-full text-center p-8">
-//               <div className="space-y-4">
-//                 <div className="mx-auto inline-flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-//                   <MessageCircle className="h-8 w-8 text-primary" />
-//                 </div>
-//                 <p className="text-muted-foreground">{welcomeMessages[language]}</p>
-//               </div>
-//             </div>
-//           )}
-
-//           <div className="space-y-4">
-//             {messages.map((message, index) => (
-//               <div
-//                 key={index}
-//                 className={`flex ${message.role === "user" ? "justify-end" : "justify-start"} mb-2`}
-//               >
-//                 <div
-//                   className={`max-w-[85%] sm:max-w-[80%] rounded-lg px-3 py-2 sm:px-4 sm:py-2 ${
-//                     message.role === "user"
-//                       ? "bg-primary text-primary-foreground"
-//                       : "bg-muted text-foreground"
-//                   }`}
-//                 >
-//                   <p className="whitespace-pre-wrap break-words text-sm sm:text-base">{message.content}</p>
-//                 </div>
-//               </div>
-//             ))}
-
-//             {isTyping && (
-//               <div className="flex justify-start">
-//                 <div className="bg-muted text-foreground rounded-lg px-4 py-2">
-//                   <Loader2 className="h-4 w-4 animate-spin" />
-//                 </div>
-//               </div>
-//             )}
-//             <div ref={messagesEndRef} />
-//           </div>
-//         </ScrollArea>
-
-//         <div className="flex gap-2">
-//           <Input
-//             value={input}
-//             onChange={(e) => setInput(e.target.value)}
-//             onKeyPress={handleKeyPress}
-//             placeholder={
-//               language === "fr"
-//                 ? "Posez votre question..."
-//                 : language === "en"
-//                 ? "Ask your question..."
-//                 : language === "wo"
-//                 ? "Laaj sa xalaat..."
-//                 : "Naamna mbelu maa..."
-//             }
-//             disabled={isLoading}
-//             className="flex-1"
-//           />
-//           <Button onClick={sendMessage} disabled={isLoading || !input.trim()}>
-//             {isLoading ? (
-//               <Loader2 className="h-4 w-4 animate-spin" />
-//             ) : (
-//               <Send className="h-4 w-4" />
-//             )}
-//           </Button>
-//         </div>
-//       </CardContent>
-//     </Card>
-//   );
-// }
-
-
 import { useState, useRef, useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -273,10 +8,26 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { MessageSquare, Send, Loader2, Sparkles, Globe, Mic, MicOff, Upload, FileText, BookOpen, AlertTriangle, CheckCircle2, GraduationCap } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { 
+  MessageSquare, 
+  Send, 
+  Loader2, 
+  Sparkles, 
+  Globe, 
+  Mic, 
+  MicOff, 
+  Upload, 
+  FileText, 
+  BookOpen, 
+  AlertTriangle, 
+  CheckCircle2, 
+  GraduationCap,
+  Lock,
+  History
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-// TypeScript interface for SpeechRecognition
 interface SpeechRecognition extends EventTarget {
   continuous: boolean;
   interimResults: boolean;
@@ -295,6 +46,14 @@ type Message = {
 
 type Language = "fr" | "en" | "wo" | "ff";
 
+type Contribution = {
+  id: string;
+  title: string;
+  contribution_type: string;
+  status: string;
+  created_at: string;
+};
+
 const languages = {
   fr: { name: "Français", flag: "🇫🇷" },
   en: { name: "English", flag: "🇬🇧" },
@@ -303,36 +62,47 @@ const languages = {
 };
 
 const welcomeMessages: Record<Language, string> = {
-  fr: "Bonjour ! Je suis votre assistant fiscal virtuel. Posez-moi vos questions.",
-  en: "Hello! I'm your virtual tax assistant. Ask me anything.",
+  fr: "Bonjour ! Je suis votre assistant fiscal. Posez-moi vos questions simplement.",
+  en: "Hello! I'm your tax assistant. Ask me your questions simply.",
   wo: "Asalaa maalekum ! Laaj ma ci impôt yi.",
-  ff: "Jam waali ! Naamnito mi e impôt e Senegal.",
+  ff: "Jam waali ! Naamnito mi e impôt.",
 };
 
 const suggestedQuestions: Record<Language, string[]> = {
   fr: [
-    "Je vends au marché. Dois-je payer un impôt ?",
+    "Dois-je payer un impôt si je vends au marché ?",
     "C'est quoi la patente ?",
-    "Je loue une maison : quel impôt payer ?",
+    "Quel impôt pour un bailleur ?",
   ],
   en: [
-    "I sell at the market. Do I need to pay tax?",
+    "Do I need to pay tax as a market seller?",
     "What is the Patente?",
-    "I rent a house: what tax applies?",
+    "What tax applies to landlords?",
   ],
   wo: [
-    "Dama jënd ci marché. Ndax dafay am impôt?",
+    "Ndax dama wara fey impôt su ma jënd ci marché ?",
     "Lan la Patente ?",
-    "Dama lokk kër, lan tax laa war?",
+    "Impôt bi baay kër war ?",
   ],
   ff: [
-    "Mi peeñata e marché. Ndaɗa foti yiilaa?",
-    "Hol ko Patente?",
-    "Mi jeya galle. Hol fayde mi foti?",
+    "Mi foti yiilaa so mi peeñata e marché ?",
+    "Hol ko Patente ?",
+    "Hol fayde jeeyoowo galle foti ?",
   ],
 };
 
+const contributionTypes = [
+  { value: "case_study", label: { fr: "Étude de cas", en: "Case Study" } },
+  { value: "jurisprudence", label: { fr: "Jurisprudence", en: "Jurisprudence" } },
+  { value: "analysis", label: { fr: "Analyse technique", en: "Technical Analysis" } },
+  { value: "correction", label: { fr: "Correction IA", en: "AI Correction" } },
+  { value: "enrichment", label: { fr: "Enrichissement", en: "Enrichment" } },
+];
+
 export function TaxChatbot() {
+  const { user, isFiscalist } = useAuth();
+  const { toast } = useToast();
+  
   const [language, setLanguage] = useState<Language>("fr");
   const [messages, setMessages] = useState<Message[]>([
     { role: "assistant", content: welcomeMessages.fr }
@@ -340,12 +110,39 @@ export function TaxChatbot() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
-  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
-  const [correctionText, setCorrectionText] = useState("");
-  const { toast } = useToast();
+  
+  // Fiscaliste states
+  const [contributionType, setContributionType] = useState("");
+  const [contributionTitle, setContributionTitle] = useState("");
+  const [contributionContent, setContributionContent] = useState("");
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [contributions, setContributions] = useState<Contribution[]>([]);
+  
   const scrollRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isFiscalist && user) {
+      fetchContributions();
+    }
+  }, [isFiscalist, user]);
+
+  const fetchContributions = async () => {
+    if (!user) return;
+    try {
+      const { data } = await supabase
+        .from("fiscalist_contributions")
+        .select("id, title, contribution_type, status, created_at")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
+      
+      if (data) setContributions(data);
+    } catch (err) {
+      console.error("Error fetching contributions:", err);
+    }
+  };
 
   const streamChat = async (userMessage: string) => {
     try {
@@ -360,16 +157,17 @@ export function TaxChatbot() {
         body: JSON.stringify({
           messages: [...messages, { role: "user", content: userMessage }],
           language,
+          mode: isFiscalist ? "expert" : "citizen",
         }),
       });
 
       if (!resp.ok || !resp.body) {
         if (resp.status === 429) {
-          toast({ title: "Erreur", description: "Trop de requêtes", variant: "destructive" });
+          toast({ title: "Erreur", description: "Trop de requêtes, réessayez", variant: "destructive" });
           return;
         }
         if (resp.status === 402) {
-          toast({ title: "Crédits insuffisants", description: "Rechargez vos crédits", variant: "destructive" });
+          toast({ title: "Crédits", description: "Crédits insuffisants", variant: "destructive" });
           return;
         }
         throw new Error("Erreur de communication");
@@ -381,6 +179,9 @@ export function TaxChatbot() {
       let assistantText = "";
 
       setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
+
+      // Add initial delay for better UX
+      await new Promise(resolve => setTimeout(resolve, 500));
 
       while (true) {
         const { done, value } = await reader.read();
@@ -401,14 +202,20 @@ export function TaxChatbot() {
             const parsed = JSON.parse(jsonStr);
             const content = parsed.choices?.[0]?.delta?.content;
             if (content) {
-              assistantText += content;
-              setMessages((prev) => {
-                const m = [...prev];
-                m[m.length - 1].content = assistantText;
-                return m;
-              });
+              // Word-by-word streaming effect
+              const words = content.split(/(\s+)/);
+              for (const word of words) {
+                assistantText += word;
+                setMessages((prev) => {
+                  const m = [...prev];
+                  m[m.length - 1].content = assistantText;
+                  return m;
+                });
+                // Small delay for typing effect
+                await new Promise(resolve => setTimeout(resolve, 30));
+              }
             }
-          } catch { }
+          } catch {}
         }
       }
     } catch (err) {
@@ -441,10 +248,7 @@ export function TaxChatbot() {
       recognitionRef.current.interimResults = false;
 
       const langMap: Record<Language, string> = {
-        fr: 'fr-FR',
-        en: 'en-US',
-        wo: 'wo-SN',
-        ff: 'ff-SN'
+        fr: 'fr-FR', en: 'en-US', wo: 'wo-SN', ff: 'ff-SN'
       };
       recognitionRef.current.lang = langMap[language] || 'fr-FR';
 
@@ -454,111 +258,128 @@ export function TaxChatbot() {
         setIsListening(false);
       };
 
-      recognitionRef.current.onerror = (event: any) => {
-        console.error('Speech recognition error:', event.error);
-        setIsListening(false);
-        toast({
-          title: "Erreur vocale",
-          description: "Impossible de capturer la voix",
-          variant: "destructive",
-        });
-      };
-
-      recognitionRef.current.onend = () => {
-        setIsListening(false);
-      };
+      recognitionRef.current.onerror = () => setIsListening(false);
+      recognitionRef.current.onend = () => setIsListening(false);
     }
 
-    return () => {
-      if (recognitionRef.current) {
-        recognitionRef.current.stop();
-      }
-    };
-  }, [language, toast]);
+    return () => { recognitionRef.current?.stop(); };
+  }, [language]);
 
   const toggleVoiceInput = () => {
     if (!recognitionRef.current) {
-      toast({
-        title: "Non supporté",
-        description: "La reconnaissance vocale n'est pas supportée par votre navigateur",
-        variant: "destructive",
-      });
+      toast({ title: "Non supporté", variant: "destructive" });
       return;
     }
-
     if (isListening) {
       recognitionRef.current.stop();
-      setIsListening(false);
     } else {
       recognitionRef.current.start();
       setIsListening(true);
     }
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    setUploadedFiles(prev => [...prev, ...files]);
-    toast({
-      title: language === "fr" ? "Fichiers ajoutés" : "Files added",
-      description: language === "fr"
-        ? `${files.length} fichier(s) ajouté(s) avec succès`
-        : `${files.length} file(s) added successfully`,
-    });
-  };
-
-  const handleAnalyzeDocuments = () => {
-    setIsLoading(true);
-    // Simulate analysis
-    setTimeout(() => {
-      setIsLoading(false);
+  const handleSubmitContribution = async () => {
+    if (!user || !contributionType || !contributionTitle) {
       toast({
-        title: language === "fr" ? "Analyse terminée" : "Analysis complete",
-        description: language === "fr"
-          ? "Les documents ont été analysés avec succès"
-          : "Documents have been analyzed successfully",
-      });
-    }, 2000);
-  };
-
-  const handleSubmitCorrection = () => {
-    if (!correctionText.trim()) {
-      toast({
-        title: language === "fr" ? "Erreur" : "Error",
-        description: language === "fr"
-          ? "Veuillez décrire la correction"
-          : "Please describe the correction",
+        title: language === "fr" ? "Champs requis" : "Required fields",
+        description: language === "fr" ? "Veuillez remplir tous les champs obligatoires" : "Please fill all required fields",
         variant: "destructive",
       });
       return;
     }
 
-    toast({
-      title: language === "fr" ? "Correction soumise" : "Correction submitted",
-      description: language === "fr"
-        ? "Merci pour votre contribution !"
-        : "Thank you for your contribution!",
-    });
-    setCorrectionText("");
+    setIsSubmitting(true);
+
+    try {
+      let filePath = null;
+
+      if (uploadedFile) {
+        const fileExt = uploadedFile.name.split(".").pop();
+        const fileName = `${user.id}/contributions/${Date.now()}.${fileExt}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from("documents")
+          .upload(fileName, uploadedFile);
+
+        if (uploadError) throw uploadError;
+        filePath = fileName;
+      }
+
+      const { error } = await supabase.from("fiscalist_contributions").insert({
+        user_id: user.id,
+        contribution_type: contributionType,
+        title: contributionTitle,
+        content: contributionContent || null,
+        file_path: filePath,
+        status: "pending",
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: language === "fr" ? "Contribution soumise" : "Contribution submitted",
+        description: language === "fr" 
+          ? "Votre contribution sera examinée par notre équipe" 
+          : "Your contribution will be reviewed by our team",
+      });
+
+      // Reset form
+      setContributionType("");
+      setContributionTitle("");
+      setContributionContent("");
+      setUploadedFile(null);
+      fetchContributions();
+    } catch (err) {
+      console.error("Error submitting contribution:", err);
+      toast({ title: "Erreur", variant: "destructive" });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
+  const getStatusBadge = (status: string) => {
+    const config = {
+      pending: { label: language === "fr" ? "En attente" : "Pending", variant: "secondary" as const },
+      validated: { label: language === "fr" ? "Validé" : "Validated", variant: "default" as const },
+      rejected: { label: language === "fr" ? "Refusé" : "Rejected", variant: "destructive" as const },
+    };
+    const { label, variant } = config[status as keyof typeof config] || config.pending;
+    return <Badge variant={variant}>{label}</Badge>;
+  };
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages]);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/10">
       <div className="container mx-auto px-4 pb-8">
-
-        {/* HEADER */}
+        {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-4">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-primary/20 to-accent/20 border border-primary/30 mb-4">
             <Sparkles className="w-4 h-4 text-primary" />
-            <span className="text-sm font-medium text-primary">Conseiller Fiscal IA</span>
+            <span className="text-sm font-medium text-primary">
+              {isFiscalist ? "Mode Expert Fiscaliste" : "Conseiller Fiscal IA"}
+            </span>
+            {isFiscalist && <GraduationCap className="w-4 h-4 text-primary" />}
           </div>
-          <h1 className="text-4xl font-bold mb-3">Assistant Fiscal</h1>
-          <p className="text-muted-foreground">Posez vos questions fiscales en langage simple</p>
+          <h1 className="text-4xl font-bold mb-3 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            Assistant Fiscal
+          </h1>
+          <p className="text-muted-foreground">
+            {isFiscalist 
+              ? "Mode expert activé - Contribuez à améliorer l'IA"
+              : "Posez vos questions fiscales en langage simple"
+            }
+          </p>
 
-          {/* LANG SELECTOR */}
+          {/* Language Selector */}
           <div className="flex items-center justify-center gap-2 mt-4">
             <Globe className="w-4 h-4 text-muted-foreground" />
             <Select value={language} onValueChange={(val) => handleLanguageChange(val as Language)}>
-              <SelectTrigger className="w-[200px]">
+              <SelectTrigger className="w-[200px] bg-card border-2">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -574,35 +395,44 @@ export function TaxChatbot() {
           </div>
         </div>
 
-        {/* CHAT CARD WITH TABS */}
-        <Tabs defaultValue="chat" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-6">
+        {/* Main Content with Tabs */}
+        <Tabs defaultValue="chat" className="w-full max-w-4xl mx-auto">
+          <TabsList className={`grid w-full mb-6 ${isFiscalist ? 'grid-cols-4' : 'grid-cols-1'}`}>
             <TabsTrigger value="chat" className="flex items-center gap-2">
               <MessageSquare className="w-4 h-4" />
-              {language === "fr" ? "Chat" : "Chat"}
+              Chat
             </TabsTrigger>
-            <TabsTrigger value="documents" className="flex items-center gap-2">
-              <FileText className="w-4 h-4" />
-              {language === "fr" ? "Documents" : "Documents"}
-            </TabsTrigger>
-            <TabsTrigger value="contribute" className="flex items-center gap-2">
-              <GraduationCap className="w-4 h-4" />
-              {language === "fr" ? "Contribuer" : "Contribute"}
-            </TabsTrigger>
+            {isFiscalist && (
+              <>
+                <TabsTrigger value="documents" className="flex items-center gap-2">
+                  <FileText className="w-4 h-4" />
+                  Documents
+                </TabsTrigger>
+                <TabsTrigger value="contribute" className="flex items-center gap-2">
+                  <BookOpen className="w-4 h-4" />
+                  Contribuer
+                </TabsTrigger>
+                <TabsTrigger value="history" className="flex items-center gap-2">
+                  <History className="w-4 h-4" />
+                  Historique
+                </TabsTrigger>
+              </>
+            )}
           </TabsList>
 
-          {/* TAB 1: CHAT */}
+          {/* Chat Tab */}
           <TabsContent value="chat">
-            <Card className="h-[600px] flex flex-col shadow-xl border-2">
+            <Card className="h-[600px] flex flex-col shadow-xl border-2 bg-gradient-to-b from-card to-card/80">
               <ScrollArea className="flex-1 p-6" ref={scrollRef}>
                 <div className="space-y-4">
                   {messages.map((m, i) => (
                     <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
                       <div
-                        className={`max-w-[80%] rounded-2xl px-4 py-3 ${m.role === "user"
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-card border border-border"
-                          }`}
+                        className={`max-w-[80%] rounded-2xl px-4 py-3 shadow-sm ${
+                          m.role === "user"
+                            ? "bg-gradient-to-r from-primary to-primary/90 text-primary-foreground"
+                            : "bg-gradient-to-r from-muted to-muted/80 border border-border"
+                        }`}
                       >
                         {m.role === "assistant" && (
                           <div className="flex items-center gap-1 mb-1 opacity-70">
@@ -614,10 +444,9 @@ export function TaxChatbot() {
                       </div>
                     </div>
                   ))}
-
                   {isLoading && (
                     <div className="flex justify-start">
-                      <div className="bg-card border rounded-2xl px-4 py-3">
+                      <div className="bg-muted border rounded-2xl px-4 py-3">
                         <Loader2 className="w-5 h-5 animate-spin text-primary" />
                       </div>
                     </div>
@@ -625,13 +454,19 @@ export function TaxChatbot() {
                 </div>
               </ScrollArea>
 
-              {/* SUGGESTED QUESTIONS */}
+              {/* Suggestions */}
               {messages.length <= 1 && (
-                <div className="px-6 py-3 border-t bg-muted/30">
+                <div className="px-6 py-3 border-t bg-gradient-to-r from-muted/50 to-accent/10">
                   <p className="text-xs text-muted-foreground mb-2">Suggestions :</p>
                   <div className="flex flex-wrap gap-2">
                     {suggestedQuestions[language].map((q, i) => (
-                      <Button key={i} variant="outline" size="sm" className="text-xs" onClick={() => setInput(q)}>
+                      <Button 
+                        key={i} 
+                        variant="outline" 
+                        size="sm" 
+                        className="text-xs bg-card hover:bg-primary/10 hover:text-primary" 
+                        onClick={() => setInput(q)}
+                      >
                         {q}
                       </Button>
                     ))}
@@ -639,8 +474,8 @@ export function TaxChatbot() {
                 </div>
               )}
 
-              {/* INPUT */}
-              <div className="p-4 border-t bg-card/50">
+              {/* Input */}
+              <div className="p-4 border-t bg-gradient-to-r from-card to-muted/20">
                 <div className="flex gap-2">
                   <Input
                     value={input}
@@ -648,7 +483,7 @@ export function TaxChatbot() {
                     onKeyDown={(e) => e.key === "Enter" && !isLoading && handleSend()}
                     placeholder="Posez votre question..."
                     disabled={isLoading}
-                    className="flex-1 border-2 focus:border-primary"
+                    className="flex-1 border-2 focus:border-primary bg-background"
                   />
                   <Button
                     type="button"
@@ -658,11 +493,7 @@ export function TaxChatbot() {
                     variant={isListening ? "default" : "outline"}
                     className={isListening ? "animate-pulse" : ""}
                   >
-                    {isListening ? (
-                      <MicOff className="w-4 h-4" />
-                    ) : (
-                      <Mic className="w-4 h-4" />
-                    )}
+                    {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
                   </Button>
                   <Button onClick={handleSend} disabled={isLoading || !input.trim()} className="gap-2">
                     {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
@@ -672,150 +503,196 @@ export function TaxChatbot() {
             </Card>
           </TabsContent>
 
-          {/* TAB 2: DOCUMENT ANALYSIS */}
-          <TabsContent value="documents">
-            <Card className="border-2">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-primary" />
-                  {language === "fr" ? "Analyse de Documents" : "Document Analysis"}
-                </CardTitle>
-                <CardDescription>
-                  {language === "fr"
-                    ? "Uploadez des documents fiscaux pour vérifier les réponses de l'IA"
-                    : "Upload tax documents to verify AI responses"}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div
-                  className="border-2 border-dashed rounded-xl p-8 text-center cursor-pointer hover:border-primary/50 transition-colors"
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    className="hidden"
-                    accept=".pdf,.doc,.docx,.txt"
-                    multiple
-                    onChange={handleFileUpload}
-                  />
-                  <Upload className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                  <p className="font-medium">
-                    {language === "fr" ? "Cliquez pour uploader" : "Click to upload"}
-                  </p>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    PDF, DOC, DOCX, TXT
-                  </p>
-                </div>
-
-                {uploadedFiles.length > 0 && (
-                  <div className="space-y-3">
-                    <h4 className="font-medium text-sm">
-                      {language === "fr" ? "Fichiers uploadés" : "Uploaded files"}
-                    </h4>
-                    {uploadedFiles.map((file, i) => (
-                      <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-                        <FileText className="w-5 h-5 text-primary" />
-                        <span className="text-sm flex-1 truncate">{file.name}</span>
-                        <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+          {/* Documents Tab - Fiscalistes only */}
+          {isFiscalist && (
+            <TabsContent value="documents">
+              <Card className="border-2 bg-gradient-to-b from-card to-card/80">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="w-5 h-5 text-primary" />
+                    Documents Fiscaux
+                  </CardTitle>
+                  <CardDescription>
+                    Uploadez des documents pour enrichir l'IA (jurisprudences, analyses, cas pratiques)
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div
+                    className="border-2 border-dashed rounded-xl p-8 text-center cursor-pointer hover:border-primary/50 transition-colors bg-gradient-to-b from-muted/30 to-muted/10"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      className="hidden"
+                      accept=".pdf,.doc,.docx,.txt"
+                      onChange={(e) => setUploadedFile(e.target.files?.[0] || null)}
+                    />
+                    {uploadedFile ? (
+                      <div className="flex items-center justify-center gap-2">
+                        <CheckCircle2 className="w-6 h-6 text-success" />
+                        <span className="font-medium">{uploadedFile.name}</span>
                       </div>
-                    ))}
-                    <Button onClick={handleAnalyzeDocuments} className="w-full" disabled={isLoading}>
-                      {isLoading ? (
-                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                      ) : (
-                        <Sparkles className="w-4 h-4 mr-2" />
-                      )}
-                      {language === "fr" ? "Analyser les documents" : "Analyze documents"}
-                    </Button>
+                    ) : (
+                      <>
+                        <Upload className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                        <p className="font-medium">Cliquez pour uploader un document</p>
+                        <p className="text-sm text-muted-foreground mt-1">PDF, DOC, DOCX, TXT</p>
+                      </>
+                    )}
                   </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          )}
 
-          {/* TAB 3: CONTRIBUTION */}
-          <TabsContent value="contribute">
-            <Card className="border-2">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <BookOpen className="w-5 h-5 text-primary" />
-                  {language === "fr" ? "Contribuer à l'Apprentissage" : "Contribute to Learning"}
-                </CardTitle>
-                <CardDescription>
-                  {language === "fr"
-                    ? "Aidez l'IA à s'améliorer en signalant des erreurs ou en ajoutant des connaissances"
-                    : "Help the AI improve by reporting errors or adding knowledge"}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-4">
-                  <div className="p-4 rounded-lg border bg-amber-500/5 border-amber-500/20">
+          {/* Contribute Tab - Fiscalistes only */}
+          {isFiscalist && (
+            <TabsContent value="contribute">
+              <Card className="border-2 bg-gradient-to-b from-card to-card/80">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <BookOpen className="w-5 h-5 text-primary" />
+                    Contribuer à l'IA
+                  </CardTitle>
+                  <CardDescription>
+                    Proposez des corrections ou enrichissements pour améliorer l'assistant
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="p-4 rounded-lg border bg-gradient-to-r from-amber-500/10 to-amber-500/5 border-amber-500/20">
                     <div className="flex items-start gap-3">
                       <AlertTriangle className="w-5 h-5 text-amber-500 mt-0.5" />
                       <div>
-                        <h4 className="font-medium text-sm">
-                          {language === "fr" ? "Signaler une erreur" : "Report an error"}
-                        </h4>
+                        <h4 className="font-medium text-sm">Validation requise</h4>
                         <p className="text-xs text-muted-foreground mt-1">
-                          {language === "fr"
-                            ? "Si vous constatez une erreur dans les réponses de l'IA, décrivez-la ci-dessous"
-                            : "If you notice an error in the AI responses, describe it below"}
+                          Toutes les contributions sont vérifiées par notre équipe avant intégration
                         </p>
                       </div>
                     </div>
                   </div>
 
-                  <Textarea
-                    value={correctionText}
-                    onChange={(e) => setCorrectionText(e.target.value)}
-                    placeholder={
-                      language === "fr"
-                        ? "Décrivez l'erreur constatée, la réponse correcte, et si possible la source officielle (article du CGI, circulaire, etc.)..."
-                        : "Describe the error found, the correct answer, and if possible the official source (CGI article, circular, etc.)..."
-                    }
-                    className="min-h-[150px] border-2"
-                  />
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">Type de contribution *</label>
+                      <Select value={contributionType} onValueChange={setContributionType}>
+                        <SelectTrigger className="border-2">
+                          <SelectValue placeholder="Sélectionnez un type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {contributionTypes.map((type) => (
+                            <SelectItem key={type.value} value={type.value}>
+                              {type.label[language === "fr" ? "fr" : "en"]}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                  <Button onClick={handleSubmitCorrection} className="w-full">
-                    <Send className="w-4 h-4 mr-2" />
-                    {language === "fr" ? "Soumettre la correction" : "Submit correction"}
-                  </Button>
-                </div>
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">Titre *</label>
+                      <Input
+                        value={contributionTitle}
+                        onChange={(e) => setContributionTitle(e.target.value)}
+                        placeholder="Ex: Correction sur le calcul de l'IR"
+                        className="border-2"
+                      />
+                    </div>
 
-                <div className="pt-6 border-t">
-                  <h4 className="font-medium mb-3">
-                    {language === "fr" ? "Documents de référence suggérés" : "Suggested reference documents"}
-                  </h4>
-                  <div className="grid gap-3">
-                    {[
-                      { name: "Code Général des Impôts (CGI)", type: "PDF" },
-                      { name: "Circulaires DGID", type: "PDF" },
-                      { name: "Jurisprudence fiscale", type: "DOC" },
-                    ].map((doc, i) => (
-                      <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                        <div className="flex items-center gap-3">
-                          <FileText className="w-5 h-5 text-primary" />
-                          <span className="text-sm">{doc.name}</span>
-                        </div>
-                        <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
-                          <Upload className="w-4 h-4 mr-2" />
-                          {language === "fr" ? "Uploader" : "Upload"}
-                        </Button>
-                      </div>
-                    ))}
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">Description / Contenu</label>
+                      <Textarea
+                        value={contributionContent}
+                        onChange={(e) => setContributionContent(e.target.value)}
+                        placeholder="Décrivez votre contribution en détail, incluez les sources officielles si possible (articles du CGI, circulaires, etc.)"
+                        className="min-h-[150px] border-2"
+                      />
+                    </div>
+
+                    <Button 
+                      onClick={handleSubmitContribution} 
+                      className="w-full"
+                      disabled={isSubmitting || !contributionType || !contributionTitle}
+                    >
+                      {isSubmitting ? (
+                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                      ) : (
+                        <Send className="w-4 h-4 mr-2" />
+                      )}
+                      Soumettre la contribution
+                    </Button>
                   </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          )}
+
+          {/* History Tab - Fiscalistes only */}
+          {isFiscalist && (
+            <TabsContent value="history">
+              <Card className="border-2 bg-gradient-to-b from-card to-card/80">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <History className="w-5 h-5 text-primary" />
+                    Historique des Contributions
+                  </CardTitle>
+                  <CardDescription>
+                    Suivez le statut de vos contributions
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {contributions.length === 0 ? (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <BookOpen className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                      <p>Aucune contribution pour le moment</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {contributions.map((contrib) => (
+                        <div key={contrib.id} className="flex items-center gap-4 p-4 rounded-xl border bg-gradient-to-r from-card to-muted/20">
+                          <div className="p-2 rounded-lg bg-primary/10">
+                            <FileText className="w-5 h-5 text-primary" />
+                          </div>
+                          <div className="flex-1">
+                            <p className="font-medium">{contrib.title}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {contributionTypes.find(t => t.value === contrib.contribution_type)?.label.fr || contrib.contribution_type}
+                              {" • "}
+                              {new Date(contrib.created_at).toLocaleDateString()}
+                            </p>
+                          </div>
+                          {getStatusBadge(contrib.status)}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+          )}
+        </Tabs>
+
+        {/* Access info for non-fiscalists */}
+        {!isFiscalist && user && (
+          <div className="mt-6 text-center">
+            <Card className="inline-block border-2 bg-gradient-to-r from-primary/5 to-accent/5">
+              <CardContent className="flex items-center gap-3 py-4">
+                <Lock className="w-5 h-5 text-muted-foreground" />
+                <div className="text-left">
+                  <p className="text-sm font-medium">Mode Expert réservé aux fiscalistes</p>
+                  <a href="/expert-request" className="text-xs text-primary hover:underline">
+                    Demander l'accès expert →
+                  </a>
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
-        </Tabs>
+          </div>
+        )}
 
-        {/* FOOTER */}
+        {/* Footer */}
         <div className="mt-6 text-center text-sm text-muted-foreground">
           💡 Cet assistant simplifie les textes fiscaux pour une meilleure compréhension.
         </div>
-
       </div>
     </div>
   );
