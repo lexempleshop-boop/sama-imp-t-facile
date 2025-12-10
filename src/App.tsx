@@ -13,7 +13,10 @@ import About from "./pages/About";
 import Auth from "./pages/Auth";
 import Documents from "./pages/Documents";
 import ExpertRequest from "./pages/ExpertRequest";
+import AdminLogin from "./pages/AdminLogin";
+import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +36,15 @@ const App = () => (
               <Route path="/documents" element={<Documents />} />
               <Route path="/expert-request" element={<ExpertRequest />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route
+                path="/admin/dashboard"
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                }
+              />
               <Route path="/about" element={<About />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
