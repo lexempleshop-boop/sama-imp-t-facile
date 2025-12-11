@@ -90,12 +90,11 @@ export default function AdminLogin() {
                     }
 
                     // Also ensure profile exists
-                    const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+                    const { data: profile } = await supabase.from('profiles').select('*').eq('user_id', user.id).single();
                     if (!profile && email === "admin@sama.sn") {
                         await supabase.from('profiles').insert([{
-                            id: user.id,
-                            full_name: 'Super Admin',
-                            email: email
+                            user_id: user.id,
+                            full_name: 'Super Admin'
                         }]);
                     }
                 } else {
