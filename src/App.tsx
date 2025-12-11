@@ -15,6 +15,7 @@ import Documents from "./pages/Documents";
 import ExpertRequest from "./pages/ExpertRequest";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
+import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
@@ -35,6 +36,7 @@ const App = () => (
               <Route path="/formalization" element={<Formalization />} />
               <Route path="/documents" element={<Documents />} />
               <Route path="/expert-request" element={<ExpertRequest />} />
+              <Route path="/admin" element={<Admin />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route

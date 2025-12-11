@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,12 +36,41 @@ export function OnlineRegistrationForm({ onBack }: { onBack: () => void }) {
         bailCommercial: null,
     });
 
+    const { user } = useAuth(); // Get authenticated user
+
     const handleFileChange = (field: keyof RegistrationFormData, file: File | null) => {
         setFormData(prev => ({ ...prev, [field]: file }));
     };
 
+    const uploadFile = async (file: File, path: string) => {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Math.random()}.${fileExt}`;
+        const filePath = `${path}/${fileName}`;
+
+        const { error: uploadError, data } = await supabase.storage
+            .from('documents')
+            .upload(filePath, file);
+
+        if (uploadError) {
+            throw uploadError;
+        }
+
+        return filePath;
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (!user) {
+            toast({
+                title: language === "fr" ? "Non connecté" : "Not logged in",
+                description: language === "fr"
+                    ? "Veuillez vous connecter pour soumettre une demande."
+                    : "Please log in to submit a request.",
+                variant: "destructive",
+            });
+            return;
+        }
 
         // Validation
         if (!formData.firstName || !formData.lastName || !formData.phone) {
@@ -77,17 +108,61 @@ export function OnlineRegistrationForm({ onBack }: { onBack: () => void }) {
 
         setIsSubmitting(true);
 
-        // Simulate API call
-        setTimeout(() => {
+        try {
+            // 1. Upload files
+            const cniPath = await uploadFile(formData.cni, 'registrations/cni');
+            const residencePath = await uploadFile(formData.certificatResidence, 'registrations/residence');
+            const bailPath = await uploadFile(formData.bailCommercial, 'registrations/bail');
+
+            // 2. Submit request
+            // We reuse expert_requests table as planned:
+            // ninea_path -> CNI
+            // fiscal_attestation_path -> Residence
+            // professional_card_path -> Bail
+            const { error: submitError } = await supabase
+                .from('expert_requests')
+                .insert({
+                    user_id: user.id,
+                    email: user.email || "",
+                    full_name: `${formData.firstName} ${formData.lastName}`,
+                    phone: formData.phone,
+                    status: 'pending',
+                    // Mapping fields
+                    ninea_path: cniPath,
+                    fiscal_attestation_path: residencePath,
+                    professional_card_path: bailPath,
+                    // Additional info for type discrimination and payment
+                    additional_info: JSON.stringify({
+                        type: 'commerce_registration',
+                        payment_method: formData.paymentMethod,
+                        payment_phone: formData.paymentPhone,
+                        first_name: formData.firstName,
+                        last_name: formData.lastName
+                    })
+                });
+
+            if (submitError) throw submitError;
+
             setIsSubmitting(false);
             setIsSubmitted(true);
             toast({
                 title: language === "fr" ? "Demande envoyée !" : "Request sent!",
                 description: language === "fr"
-                    ? "Votre demande d'inscription a été envoyée avec succès. Vous recevrez une confirmation par téléphone."
-                    : "Your registration request has been sent successfully. You will receive a confirmation by phone.",
+                    ? "Votre demande d'inscription a été envoyée avec succès."
+                    : "Your registration request has been sent successfully.",
             });
-        }, 2000);
+
+        } catch (error: any) {
+            console.error('Submission error:', error);
+            setIsSubmitting(false);
+            toast({
+                title: language === "fr" ? "Erreur" : "Error",
+                description: language === "fr"
+                    ? "Une erreur est survenue lors de l'envoi. Veuillez réessayer."
+                    : "An error occurred during submission. Please try again.",
+                variant: "destructive",
+            });
+        }
     };
 
     if (isSubmitted) {
@@ -332,8 +407,8 @@ export function OnlineRegistrationForm({ onBack }: { onBack: () => void }) {
                                     type="button"
                                     onClick={() => setFormData(prev => ({ ...prev, paymentMethod: "wave" }))}
                                     className={`p-4 rounded-lg border-2 transition-all ${formData.paymentMethod === "wave"
-                                            ? "border-primary bg-primary/10"
-                                            : "border-border hover:border-primary/50"
+                                        ? "border-primary bg-primary/10"
+                                        : "border-border hover:border-primary/50"
                                         }`}
                                 >
                                     <div className="flex flex-col items-center gap-2">
@@ -348,8 +423,8 @@ export function OnlineRegistrationForm({ onBack }: { onBack: () => void }) {
                                     type="button"
                                     onClick={() => setFormData(prev => ({ ...prev, paymentMethod: "orange" }))}
                                     className={`p-4 rounded-lg border-2 transition-all ${formData.paymentMethod === "orange"
-                                            ? "border-primary bg-primary/10"
-                                            : "border-border hover:border-primary/50"
+                                        ? "border-primary bg-primary/10"
+                                        : "border-border hover:border-primary/50"
                                         }`}
                                 >
                                     <div className="flex flex-col items-center gap-2">

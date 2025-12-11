@@ -3,7 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { t } from "@/utils/translations";
 import { LanguageSelector } from "./LanguageSelector";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Calculator, MessageCircle, Home, Info, User, LogOut, FileText, GraduationCap, Folder } from "lucide-react";
+import { Calculator, MessageCircle, Home, Info, User, LogOut, FileText, GraduationCap, Folder, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -15,7 +15,7 @@ import {
 
 export function Header() {
   const { language } = useLanguage();
-  const { user, signOut, isFiscalist } = useAuth();
+  const { user, signOut, isFiscalist, userRole } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -94,6 +94,14 @@ export function Header() {
                     <DropdownMenuItem className="flex items-center gap-2 text-primary">
                       <GraduationCap className="h-4 w-4" />
                       {language === "fr" ? "Accès Expert" : "Expert Access"}
+                    </DropdownMenuItem>
+                  )}
+                  {userRole === "admin" && (
+                    <DropdownMenuItem asChild>
+                      <Link to="/admin" className="flex items-center gap-2 cursor-pointer text-primary">
+                        <ShieldCheck className="h-4 w-4" />
+                        Administration
+                      </Link>
                     </DropdownMenuItem>
                   )}
                   <DropdownMenuSeparator />
